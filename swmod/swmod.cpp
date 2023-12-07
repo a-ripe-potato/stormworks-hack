@@ -18,6 +18,10 @@ BYTE* VehMapAddr;
 BYTE* VehCleanAddr;
 BYTE* LockSettAddr;
 BYTE* MapTpAddr;
+BYTE* VehDamageAddr;
+BYTE* MapPlayersAddr;
+BYTE* InfElecAddr;
+BYTE* InfFuelAddr;
 char* token;
 void* EnvHealthDecAddr;
 void* PlrHealthDecAddr;
@@ -40,6 +44,7 @@ HANDLE hProcess;
 std::thread tAutoloadout;
 bool bActionThread = false;
 bool bKeepActive = false;
+
 
 BOOL WINAPI HandlerRoutine(
     _In_ DWORD dwCtrlType) {
@@ -70,6 +75,10 @@ int main()
         VehCleanAddr = (BYTE*)Module.modBaseAddr + 0xBD3D8D;
         LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD3D82;
         MapTpAddr = (BYTE*)Module.modBaseAddr + 0xBD3D89;
+        VehDamageAddr = (BYTE*)Module.modBaseAddr + 0xBD3D9A;
+        MapPlayersAddr = (BYTE*)Module.modBaseAddr + 0xBD3DA8;
+        InfElecAddr = (BYTE*)Module.modBaseAddr + 0xBD3D83;
+        InfFuelAddr = (BYTE*)Module.modBaseAddr + 0xBD3D84;
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processID);
     }
     else {
@@ -158,12 +167,14 @@ void ProcessCommand(std::string command)
 
     char cmd = command[0];
 
+    //version
     if (command == "version" || command == "ver")
     {
         std::cout << MODVERSION;
         return;
     }
     
+    //auto loadout
     if (command == "al")
     {
         if (verifyPlrObjAddress())
@@ -186,7 +197,7 @@ void ProcessCommand(std::string command)
         return;
     }
 
-
+    //god mode
     if (cmd == 'g' && command[1] == NULL || command == "god")
     {
         ml.god = !ml.god;
@@ -226,54 +237,87 @@ void ProcessCommand(std::string command)
             std::cout << invalidArgumentStr;
             return;
         }
-        if (command[1] == 'a' || command[2] == 'a')
+        for (int i = 1; i < sizeof(command) - 1; i++)
         {
-            if (al.infAmmo)
+            //infinite ammo
+            if (command[i] == 'a')
             {
-                ml.infAmmo = !ml.infAmmo;
-                if (ml.infAmmo)
+                if (al.infAmmo)
                 {
-                    EnableInfAmmo();
-                    std::cout << enableInfammoStr;
+                    ml.infAmmo = !ml.infAmmo;
+                    if (ml.infAmmo)
+                    {
+                        EnableInfAmmo();
+                        std::cout << enableInfammoStr;
+                    }
+                    else
+                    {
+                        DisableInfAmmo();
+                        std::cout << disableInfammoStr;
+                    }
                 }
                 else
                 {
-                    DisableInfAmmo();
-                    std::cout << disableInfammoStr;
+                    std::cout << actionUnavailableStr;
                 }
             }
-            else
+            //infinite util
+            if (command[i] == 'u')
             {
-                std::cout << actionUnavailableStr;
-            }
-        }
-        if (command[1] == 'u' || command[2] == 'u')
-        {
-            if (al.infUtil)
-            {
-                ml.infUtil = !ml.infUtil;
-                if (ml.infUtil)
+                if (al.infUtil)
                 {
-                    EnableInfUtil();
-                    std::cout << enableInfutilStr;
+                    ml.infUtil = !ml.infUtil;
+                    if (ml.infUtil)
+                    {
+                        EnableInfUtil();
+                        std::cout << enableInfutilStr;
+                    }
+                    else
+                    {
+                        DisableInfUtil();
+                        std::cout << disableInfutilStr;
+                    }
                 }
                 else
                 {
-                    DisableInfUtil();
-                    std::cout << disableInfutilStr;
+                    std::cout << actionUnavailableStr;
+
                 }
             }
-            else
+            //infinite electricity
+            if (command[i] == 'e')
             {
-                std::cout << actionUnavailableStr;
-              
+                if (!ml.infElec) {
+                    ml.infElec = true;
+                    StartActionThread();
+                    std::cout << enableInfElecStr;
+
+                }
+                else {
+                    std::cout << disableInfElecStr;
+                    ml.infElec = false;
+                }
             }
-            return;    
+            //infinite fuel
+            if (command[i] == 'f')
+            {
+                if (!ml.infFuel) {
+                    ml.infFuel = true;
+                    StartActionThread();
+                    std::cout << enableInfFuelStr;
+
+                }
+                else {
+                    std::cout << disableInfFuelStr;
+                    ml.infFuel = false;
+                }
+            }
         }
         return;
     }
 
-    if (command == "ka") //keep active
+    //keep action thread active
+    if (command == "ka") 
     {
         if (!bKeepActive)
         {
@@ -286,7 +330,7 @@ void ProcessCommand(std::string command)
         return;
     }
 
-
+    //set variable
     if (command == "set")
     {
         std::string internalCommand;
@@ -297,6 +341,11 @@ void ProcessCommand(std::string command)
         std::cin >> internalCommand;
         if (internalCommand == "plr")
         {
+            if (verifyPlrObjAddress)
+            {
+                std::cout << "A valid player object has alread been entered.\n";
+                return;
+            }
             std::cout << ">> Enter base player object address: 0x";
             std::cin >> PlrObjAddr;
 
@@ -313,8 +362,8 @@ void ProcessCommand(std::string command)
         }
         return;
     }
-
-    if (command == "am")
+    //admin menu
+    if (command == "am") 
     {
         if (!ml.forceCMenu) {
             ml.forceCMenu = true;
@@ -328,9 +377,25 @@ void ProcessCommand(std::string command)
         }
         return;
     }
-  
+    
+    //show map players
+    if (command == "sp" || command == "mp")
+    {
+        if (!ml.mapPlrs) {
+            ml.mapPlrs = true;
+            StartActionThread();
+            std::cout << enableMapPlrsStr;
 
-    if (command == "nc" || command == "noclip")
+        }
+        else {
+            std::cout << disableMapPlrsStr;
+            ml.mapPlrs = false;
+        }
+        return;
+    }
+  
+    //noclip
+    if (command == "nc" || command == "noclip") 
     {
         if (!ml.forceNoClip) {
             ml.forceNoClip = true;
@@ -344,13 +409,29 @@ void ProcessCommand(std::string command)
         return;
     }
 
-    if (command == "kt")
+    //kill thread
+    if (command == "kt") 
     {
         bActionThread = false;
         return;
     }
 
+    if (command == "vd")
+    {
+        if (!ml.vehDamage) {
+            ml.vehDamage = true;
+            StartActionThread();
+            std::cout << disableVehDmgStr;
 
+        }
+        else {
+            std::cout << enableVehDmgStr;
+            ml.vehDamage = false;
+        }
+        return;
+    }
+
+    //smg 
     if (command == "smg")
     {
         if (al.playerobj && verifyPlrObjAddress())
@@ -379,18 +460,20 @@ void ProcessCommand(std::string command)
         return;
     }
 
+    //loadout
     if (command == "loa")
     {
         giveLoadout();
         return;
     }
 
-
+    //help 
     if (cmd == '?' || command == "help")
     {
         printHelpMessage();
         return;
     }
+    //exit
     if (cmd == 'x')
     {
         cleanup();
@@ -522,12 +605,6 @@ void ActionThread()
         //auto loadout
         if (ml.autoLoadout)
         {
-            if (!verifyPlrObjAddress())
-            {
-                std::cout << invalidPlrObjStr << ">> ";
-                ml.autoLoadout = false;
-                continue;
-            }
 
             health = ProtectedFloatRead(hProcess, (char*)PlrObjAddr + 0x3C4, 4);
             if (health == (void*)0xFFFFFFFF)
@@ -548,6 +625,29 @@ void ActionThread()
                 giveLoadout();
             }
         }
+        //vehicle damage
+        if (ml.vehDamage) 
+        {
+            PatchEX(hProcess, VehDamageAddr, (BYTE*)"\x00", 1);
+        }
+        else {
+            PatchEX(hProcess, VehDamageAddr, (BYTE*)"\x01", 1);
+        }
+        //show map players
+        if (ml.mapPlrs) {
+            PatchEX(hProcess, MapPlayersAddr, (BYTE*)"\x01", 1);
+
+        }
+        //inf electric
+        if (ml.infElec) {
+            PatchEX(hProcess, InfElecAddr, (BYTE*)"\x01", 1);
+
+        }
+        //inf fuel
+        if (ml.infFuel) {
+            PatchEX(hProcess, InfFuelAddr, (BYTE*)"\x01", 1);
+
+        }
         //noclip
         if (ml.forceNoClip) {
             PatchEX(hProcess, NoClipAddr, (BYTE*)"\x01", 1);
@@ -563,7 +663,7 @@ void ActionThread()
 
         }
 
-        if (!ml.forceNoClip && !ml.forceCMenu && !ml.autoLoadout && !bKeepActive)
+        if (!ml.forceNoClip && !ml.forceCMenu && !ml.autoLoadout && !ml.mapPlrs && !ml.infElec && !ml.infFuel && !ml.vehDamage && !bKeepActive)
         {
             bActionThread = false;
             break;
@@ -599,6 +699,7 @@ void giveLoadout()
 
 bool verifyPlrObjAddress()
 {
+    if (PlrObjAddr == NULL) { return false; }
     al.playerobj = (DWORD)ProtectedRead(hProcess, PlrObjAddr, 4) == 4;
     return al.playerobj;
 }

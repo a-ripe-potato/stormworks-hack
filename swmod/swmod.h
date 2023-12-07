@@ -27,9 +27,13 @@ struct modList {
     bool god = false;
     bool infAmmo = false;
     bool infUtil = false;
+    bool infElec = false;
+    bool infFuel = false;
     bool autoLoadout = false;
     bool forceNoClip = false;
     bool forceCMenu = false;
+    bool vehDamage = false;
+    bool mapPlrs = false;
 };
 
 void cleanup();
