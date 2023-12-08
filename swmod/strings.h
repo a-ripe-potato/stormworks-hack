@@ -2,7 +2,7 @@
 #include "string"
 
 static std::string prefix = ">> ";
-static std::string MODVERSION = "Version: 1.0.1\n";
+static std::string MODVERSION = "Version: 1.0.2\n";
 static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 static std::string foundPattern = prefix + "Found pattern: ";
@@ -24,10 +24,12 @@ static std::string enableAutoloadoutStr = prefix + "Auto loadout enabled.\n";
 static std::string disableAutoloadoutStr = prefix + "Auto loadout disabled.\n";
 static std::string enableNoclipStr = prefix + "No clip enabled.\n";
 static std::string disableNoclipStr = prefix + "No clip disabled\n";
-static std::string enableCMenuStr = prefix + "Admin menu enabled.\n";
-static std::string disableCMenuStr = prefix + "Admin menu disabled.\n";
-static std::string enableWeaponsStr = prefix + "Weapons enabled.\n";
-static std::string disableWeaponsStr = prefix + "Weapons disabled.\n";
+static std::string enableAdminMenuStr = prefix + "Admin menu enabled.\n";
+static std::string disableAdminMenuStr = prefix + "Admin menu disabled.\n";
+static std::string enableForceDisableWeaponsStr = prefix + "Force Weapons disable active.\n";
+static std::string disableForceDisableWeaponsStr = prefix + "Force Weapons disable inactive.\n";
+static std::string enableForceEnableWeaponsStr = prefix + "Force Weapons enable active.\n";
+static std::string disableForceEnableWeaponsStr = prefix + "Force Weapons disable inactive.\n";
 static std::string enableKeepActiveStr = prefix + "Keep active enabled.\n";
 static std::string disableKeepActiveStr = prefix + "Keep active disabled.\n";
 static std::string enableInfFuelStr = prefix + "Inf fuel enabled.\n";

@@ -31,9 +31,11 @@ struct modList {
     bool infFuel = false;
     bool autoLoadout = false;
     bool forceNoClip = false;
-    bool forceCMenu = false;
+    bool forceAdminMenu = false;
     bool vehDamage = false;
     bool mapPlrs = false;
+    bool disableWeapons = false;
+    bool enableWeapons = false;
 };
 
 void cleanup();

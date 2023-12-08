@@ -22,6 +22,7 @@ BYTE* VehDamageAddr;
 BYTE* MapPlayersAddr;
 BYTE* InfElecAddr;
 BYTE* InfFuelAddr;
+BYTE* DisableWeaponsAddr;
 char* token;
 void* EnvHealthDecAddr;
 void* PlrHealthDecAddr;
@@ -79,6 +80,7 @@ int main()
         MapPlayersAddr = (BYTE*)Module.modBaseAddr + 0xBD3DA8;
         InfElecAddr = (BYTE*)Module.modBaseAddr + 0xBD3D83;
         InfFuelAddr = (BYTE*)Module.modBaseAddr + 0xBD3D84;
+        DisableWeaponsAddr = (BYTE*)Module.modBaseAddr + 0xBD3D86;
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processID);
     }
     else {
@@ -365,15 +367,55 @@ void ProcessCommand(std::string command)
     //admin menu
     if (command == "am") 
     {
-        if (!ml.forceCMenu) {
-            ml.forceCMenu = true;
+        if (!ml.forceAdminMenu) {
+            ml.forceAdminMenu = true;
             StartActionThread();
-            std::cout << enableCMenuStr;
+            std::cout << enableAdminMenuStr;
             
         }
         else {
-            std::cout << disableCMenuStr;
-            ml.forceCMenu = false;
+            std::cout << disableAdminMenuStr;
+            ml.forceAdminMenu = false;
+        }
+        return;
+    }
+    //disable weapons
+    if (command == "dw")
+    {
+        if (ml.enableWeapons)
+        {
+            std::cout << actionUnavailableStr;
+            return;
+        }
+        if (!ml.disableWeapons) {
+            ml.disableWeapons = true;
+            StartActionThread();
+            std::cout << enableForceDisableWeaponsStr;
+
+        }
+        else {
+            std::cout << disableForceDisableWeaponsStr;
+            ml.disableWeapons = false;
+        }
+        return;
+    }
+    //enable weapons
+    if (command == "ew")
+    {
+        if (ml.disableWeapons)
+        {
+            std::cout << actionUnavailableStr;
+            return;
+        }
+        if (!ml.enableWeapons) {
+            ml.enableWeapons = true;
+            StartActionThread();
+            std::cout << enableForceEnableWeaponsStr;
+
+        }
+        else {
+            std::cout << disableForceEnableWeaponsStr;
+            ml.disableWeapons = false;
         }
         return;
     }
@@ -480,7 +522,7 @@ void ProcessCommand(std::string command)
         Sleep(500);
         exit(0);
     }
-    std::cout << "Invalid command! (ignore this if it wasnt)\n";
+    std::cout << "Invalid command!\n";
 }
 
 void cleanup()
@@ -630,8 +672,15 @@ void ActionThread()
         {
             PatchEX(hProcess, VehDamageAddr, (BYTE*)"\x00", 1);
         }
-        else {
-            PatchEX(hProcess, VehDamageAddr, (BYTE*)"\x01", 1);
+        //disable weapons
+        if (ml.disableWeapons) {
+            PatchEX(hProcess, DisableWeaponsAddr, (BYTE*)"\x01", 1);
+
+        }
+        //enable weapons
+        if (ml.enableWeapons) {
+            PatchEX(hProcess, DisableWeaponsAddr, (BYTE*)"\x00", 1);
+
         }
         //show map players
         if (ml.mapPlrs) {
@@ -652,18 +701,18 @@ void ActionThread()
         if (ml.forceNoClip) {
             PatchEX(hProcess, NoClipAddr, (BYTE*)"\x01", 1);
             PatchEX(hProcess, MapTpAddr, (BYTE*)"\x01", 1);
-
         }
         //Force admin menu
-        if (ml.forceCMenu) {
+        if (ml.forceAdminMenu) {
             PatchEX(hProcess, VehTpAddr, (BYTE*)"\x01", 1); //VehTp
             PatchEX(hProcess, VehMapAddr, (BYTE*)"\x01", 1); //VehMap
             PatchEX(hProcess, VehCleanAddr, (BYTE*)"\x01", 1);//VehClean
             PatchEX(hProcess, LockSettAddr, (BYTE*)"\x00", 1); //LockSett
-
         }
 
-        if (!ml.forceNoClip && !ml.forceCMenu && !ml.autoLoadout && !ml.mapPlrs && !ml.infElec && !ml.infFuel && !ml.vehDamage && !bKeepActive)
+        if (!ml.forceNoClip && !ml.forceAdminMenu && !ml.autoLoadout && !ml.mapPlrs &&
+            !ml.infElec && !ml.infFuel && !ml.vehDamage && !ml.disableWeapons &&
+            !ml.enableWeapons && !bKeepActive)
         {
             bActionThread = false;
             break;
