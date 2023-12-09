@@ -1,5 +1,4 @@
-// swmod.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+
 #include "swmod.h"
 #include <iostream>
 #include <windows.h> 
@@ -23,17 +22,18 @@ BYTE* MapPlayersAddr;
 BYTE* InfElecAddr;
 BYTE* InfFuelAddr;
 BYTE* DisableWeaponsAddr;
+BYTE* InfAmmoAddr;
 char* token;
 void* EnvHealthDecAddr;
 void* PlrHealthDecAddr;
 void* DecPrimarySmgAmmoAddr;
 void* DecPrimaryRifleAmmoAddr;
-void* DecPrimaryWeldingTorchAddr;
+//void* DecPrimaryWeldingTorchAddr;
 void* DecPrimaryFireExtAddr;
 void* DecPistolAmmoAddr;
 void* DecC4Addr;
 void* DecGrenadeAddr;
-void* DecUWWeldingTorchAddr;
+//void* DecUWWeldingTorchAddr;
 void* DecFlaregunAddr;
 void* DecFlareAddr;
 void* DecMedKitAddr;
@@ -70,17 +70,18 @@ int main()
     if (processID != 0)
     {
         Module = getModule(processID, (wchar_t*)(L"stormworks64.exe"));
-        NoClipAddr = (BYTE*)Module.modBaseAddr + 0xBD3D88;
-        VehTpAddr = (BYTE*)Module.modBaseAddr + 0xBD3DA0;
-        VehMapAddr = (BYTE*)Module.modBaseAddr + 0xBD3DA9;
-        VehCleanAddr = (BYTE*)Module.modBaseAddr + 0xBD3D8D;
-        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD3D82;
-        MapTpAddr = (BYTE*)Module.modBaseAddr + 0xBD3D89;
-        VehDamageAddr = (BYTE*)Module.modBaseAddr + 0xBD3D9A;
-        MapPlayersAddr = (BYTE*)Module.modBaseAddr + 0xBD3DA8;
-        InfElecAddr = (BYTE*)Module.modBaseAddr + 0xBD3D83;
-        InfFuelAddr = (BYTE*)Module.modBaseAddr + 0xBD3D84;
-        DisableWeaponsAddr = (BYTE*)Module.modBaseAddr + 0xBD3D86;
+        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xD12EA2;
+        InfElecAddr = (BYTE*)LockSettAddr + 0x1;
+        InfFuelAddr = (BYTE*)LockSettAddr + 0x2;
+        DisableWeaponsAddr = (BYTE*)LockSettAddr + 0x4;
+        InfAmmoAddr = (BYTE*)LockSettAddr + 0x5;
+        NoClipAddr = (BYTE*)LockSettAddr + 0x6;
+        MapTpAddr = (BYTE*)LockSettAddr + 0x7;
+        VehCleanAddr = (BYTE*)LockSettAddr + 0xB;
+        VehDamageAddr = (BYTE*)LockSettAddr + 0x18;
+        VehTpAddr = (BYTE*)LockSettAddr + 0x1E;
+        MapPlayersAddr = (BYTE*)LockSettAddr + 0x26;
+        VehMapAddr = (BYTE*)LockSettAddr + 0x27;
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processID);
     }
     else {
@@ -89,22 +90,22 @@ int main()
         return -1;
     }
     
-    EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
-    PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xE8\x06\x00\x00\xF3\x44\x0F\x11\x64\x24\x68", (char*)"xxxxxxxxxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
-    DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x38\x02\x00\x00\x33\x33\xB3\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
-    DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x44\x02\x00\x00\x66\x66\xE6\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
-    DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x8B\x44\x24\x48\x89\x44\x24\x68", (char*)"xxxxxxxxxxxx", (char*)"DecPistolAmmoAddr");
-    DecC4Addr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4E\x08\xE9\x27\xEE\xFF\xFF\xE8\x0F\xAF\xB8\xFF", (char*)"xxxxxxxxxxxxxx", (char*)"DecC4Addr");
-    DecGrenadeAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x40\xB7\x01\x45\x38\xBD\x08\x24\x00\x00", (char*)"xxxxxxxxxxxxxx", (char*)"DecGrenadeAddr");
-    DecPrimaryWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x7D\x04\x44\x0F\x28\xC7\x0F\x28\xC7", (char*)"xxxxxxxxxxxxx", (char*)"DecPrimaryWeldingTorchAddr");
-    DecPrimaryFireExtAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x4D\x04\x44\x0F\x2F\xD1\x72\x05\x41\xC6\x45\x0C\x00\xC6\x45\x89\x01\x49\x8D\x96\x30\x1F\x00\x00", (char*)"xxxxxxxxxxxxxxxxxxxxxxxxxxxx", (char*)"DecPrimaryFireExtAddr");
-    DecUWWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x7D\x04\x44\x0F\x28\xC7\x0F\x28\xC7", (char*)"xxxxxxxxxxxxx", (char*)"DecUWWeldingTorchAddr");
-    DecFlaregunAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xC6\xFA\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlaregunAddr");
-    DecFlareAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xFB\xFC\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlareAddr");
-    DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\x00\x01\x00\x00\x8B\x9E\x98\x00\x00\x00", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecMedKitAddr");
-    DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\xB0\x00\x00\x00\x48\x8B\x7D\x08\x0F\xB6\x45\xAC", (char*)"xxxxxxxxxxxxxx", (char*)"FlashlightIDPatternAddr") - 0x33;
-    std::cout << ">> DecFlashlightAddr = 0x" << DecFlashlightAddr << "\n";
-
+    //EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
+    //PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xE8\x06\x00\x00\xF3\x44\x0F\x11\x64\x24\x68", (char*)"xxxxxxxxxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
+    //DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x38\x02\x00\x00\x33\x33\xB3\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
+    //DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x44\x02\x00\x00\x66\x66\xE6\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
+    //DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x8B\x44\x24\x48\x89\x44\x24\x68", (char*)"xxxxxxxxxxxx", (char*)"DecPistolAmmoAddr");
+    //DecC4Addr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4E\x08\xE9\x27\xEE\xFF\xFF\xE8\x0F\xAF\xB8\xFF", (char*)"xxxxxxxxxxxxxx", (char*)"DecC4Addr");
+    //DecGrenadeAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x40\xB7\x01\x45\x38\xBD\x08\x24\x00\x00", (char*)"xxxxxxxxxxxxxx", (char*)"DecGrenadeAddr");
+    //DecPrimaryWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x7D\x04\x44\x0F\x28\xC7\x0F\x28\xC7", (char*)"xxxxxxxxxxxxx", (char*)"DecPrimaryWeldingTorchAddr");
+    //DecPrimaryFireExtAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x4D\x04\x44\x0F\x2F\xD1\x72\x05\x41\xC6\x45\x0C\x00\xC6\x45\x89\x01\x49\x8D\x96\x30\x1F\x00\x00", (char*)"xxxxxxxxxxxxxxxxxxxxxxxxxxxx", (char*)"DecPrimaryFireExtAddr");
+    //DecUWWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x41\x0F\x11\x7D\x04\x44\x0F\x28\xC7\x0F\x28\xC7", (char*)"xxxxxxxxxxxxx", (char*)"DecUWWeldingTorchAddr");
+    //DecFlaregunAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xC6\xFA\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlaregunAddr");
+    //DecFlareAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xFB\xFC\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlareAddr");
+    //DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\x00\x01\x00\x00\x8B\x9E\x98\x00\x00\x00", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecMedKitAddr");
+    //DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\xB0\x00\x00\x00\x48\x8B\x7D\x08\x0F\xB6\x45\xAC", (char*)"xxxxxxxxxxxxxx", (char*)"FlashlightIDPatternAddr") - 0x33;
+    //std::cout << ">> DecFlashlightAddr = 0x" << DecFlashlightAddr << "\n";
+    std::cout << "Godmode and inf util have been disabled!\n";
     if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE))
     {
         std::cout << failedSetCH;
@@ -125,9 +126,8 @@ int main()
         al.infAmmo = true; 
     }
 
-    if (DecPrimaryWeldingTorchAddr != NULL && DecPrimaryWeldingTorchAddr < MAXSEARCHADDR
-        && DecPrimaryFireExtAddr != NULL && DecPrimaryFireExtAddr < MAXSEARCHADDR
-        && DecUWWeldingTorchAddr != NULL && DecUWWeldingTorchAddr < MAXSEARCHADDR
+    if ( //DecPrimaryWeldingTorchAddr != NULL && and DecUWWeldingTorchAddr != NULL && and DecPrimaryWeldingTorchAddr < MAXSEARCHADDR and DecUWWeldingTorchAddr < MAXSEARCHADDR
+         DecPrimaryFireExtAddr != NULL && DecPrimaryFireExtAddr < MAXSEARCHADDR
         && DecFlaregunAddr != NULL && DecFlaregunAddr < MAXSEARCHADDR
         && DecFlareAddr != NULL && DecFlareAddr < MAXSEARCHADDR
         && DecMedKitAddr != NULL && DecMedKitAddr < MAXSEARCHADDR
@@ -244,74 +244,68 @@ void ProcessCommand(std::string command)
             //infinite ammo
             if (command[i] == 'a')
             {
-                if (al.infAmmo)
+                if (true) //al.infAmmo
                 {
-                    ml.infAmmo = !ml.infAmmo;
-                    if (ml.infAmmo)
-                    {
-                        EnableInfAmmo();
+                    if (!ml.infAmmo) {
+                        ml.infAmmo = true;
+                        StartActionThread();
                         std::cout << enableInfammoStr;
                     }
-                    else
-                    {
-                        DisableInfAmmo();
+                    else {
                         std::cout << disableInfammoStr;
+                        ml.infAmmo = false;
                     }
                 }
-                else
+                //infinite util
+                if (command[i] == 'u')
                 {
-                    std::cout << actionUnavailableStr;
-                }
-            }
-            //infinite util
-            if (command[i] == 'u')
-            {
-                if (al.infUtil)
-                {
-                    ml.infUtil = !ml.infUtil;
-                    if (ml.infUtil)
+                    if (al.infUtil)
                     {
-                        EnableInfUtil();
-                        std::cout << enableInfutilStr;
+                        ml.infUtil = !ml.infUtil;
+                        if (ml.infUtil)
+                        {
+                            EnableInfUtil();
+                            std::cout << enableInfutilStr;
+                        }
+                        else
+                        {
+                            DisableInfUtil();
+                            std::cout << disableInfutilStr;
+                        }
                     }
                     else
                     {
-                        DisableInfUtil();
-                        std::cout << disableInfutilStr;
+                        std::cout << actionUnavailableStr;
+
                     }
                 }
-                else
+                //infinite electricity
+                if (command[i] == 'e')
                 {
-                    std::cout << actionUnavailableStr;
+                    if (!ml.infElec) {
+                        ml.infElec = true;
+                        StartActionThread();
+                        std::cout << enableInfElecStr;
 
+                    }
+                    else {
+                        std::cout << disableInfElecStr;
+                        ml.infElec = false;
+                    }
                 }
-            }
-            //infinite electricity
-            if (command[i] == 'e')
-            {
-                if (!ml.infElec) {
-                    ml.infElec = true;
-                    StartActionThread();
-                    std::cout << enableInfElecStr;
+                //infinite fuel
+                if (command[i] == 'f')
+                {
+                    if (!ml.infFuel) {
+                        ml.infFuel = true;
+                        StartActionThread();
+                        std::cout << enableInfFuelStr;
 
-                }
-                else {
-                    std::cout << disableInfElecStr;
-                    ml.infElec = false;
-                }
-            }
-            //infinite fuel
-            if (command[i] == 'f')
-            {
-                if (!ml.infFuel) {
-                    ml.infFuel = true;
-                    StartActionThread();
-                    std::cout << enableInfFuelStr;
-
-                }
-                else {
-                    std::cout << disableInfFuelStr;
-                    ml.infFuel = false;
+                    }
+                    else {
+                        std::cout << disableInfFuelStr;
+                        ml.infFuel = false;
+                    }
                 }
             }
         }
@@ -604,8 +598,8 @@ void EnableInfUtil()
     NopEX(hProcess, DecFlashlightAddr, 6);
     NopEX(hProcess, DecFlareAddr, 4);
     NopEX(hProcess, DecFlaregunAddr, 4);
-    NopEX(hProcess, DecUWWeldingTorchAddr, 6);
-    NopEX(hProcess, DecPrimaryWeldingTorchAddr, 6);
+    //NopEX(hProcess, DecUWWeldingTorchAddr, 6);
+    //NopEX(hProcess, DecPrimaryWeldingTorchAddr, 6);
     NopEX(hProcess, DecPrimaryFireExtAddr, 6);
     NopEX(hProcess, DecMedKitAddr, 4);
 }
@@ -620,8 +614,8 @@ void DisableInfUtil()
     PatchEX(hProcess, DecFlareAddr, FlareDecInstruction, 4);
     PatchEX(hProcess, DecFlaregunAddr, FlareDecInstruction, 4);
     PatchEX(hProcess, DecMedKitAddr, FlareDecInstruction, 4);
-    PatchEX(hProcess, DecUWWeldingTorchAddr, utilDecInstruction, 6);
-    PatchEX(hProcess, DecPrimaryWeldingTorchAddr, utilDecInstruction, 6);
+   // PatchEX(hProcess, DecUWWeldingTorchAddr, utilDecInstruction, 6);
+   // PatchEX(hProcess, DecPrimaryWeldingTorchAddr, utilDecInstruction, 6);
     PatchEX(hProcess, DecPrimaryFireExtAddr, FireExtDecInstruction, 6);
 }
 
@@ -682,10 +676,14 @@ void ActionThread()
             PatchEX(hProcess, DisableWeaponsAddr, (BYTE*)"\x00", 1);
 
         }
+        //inf ammo
+        if (ml.infAmmo) {
+            PatchEX(hProcess, InfAmmoAddr, (BYTE*)"\x01", 1);
+
+        }
         //show map players
         if (ml.mapPlrs) {
             PatchEX(hProcess, MapPlayersAddr, (BYTE*)"\x01", 1);
-
         }
         //inf electric
         if (ml.infElec) {
@@ -712,7 +710,7 @@ void ActionThread()
 
         if (!ml.forceNoClip && !ml.forceAdminMenu && !ml.autoLoadout && !ml.mapPlrs &&
             !ml.infElec && !ml.infFuel && !ml.vehDamage && !ml.disableWeapons &&
-            !ml.enableWeapons && !bKeepActive)
+            !ml.enableWeapons && !ml.infAmmo && !bKeepActive)
         {
             bActionThread = false;
             break;
