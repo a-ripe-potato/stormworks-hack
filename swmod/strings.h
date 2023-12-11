@@ -2,7 +2,7 @@
 #include "string"
 
 static std::string prefix = ">> ";
-static std::string MODVERSION = "Version: 1.0.2\n";
+static std::string MODVERSION = "Version: 1.0.3\n";
 static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 static std::string foundPattern = prefix + "Found pattern: ";

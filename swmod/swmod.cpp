@@ -70,7 +70,7 @@ int main()
     if (processID != 0)
     {
         Module = getModule(processID, (wchar_t*)(L"stormworks64.exe"));
-        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xD12EA2;
+        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD4E72;
         InfElecAddr = (BYTE*)LockSettAddr + 0x1;
         InfFuelAddr = (BYTE*)LockSettAddr + 0x2;
         DisableWeaponsAddr = (BYTE*)LockSettAddr + 0x4;
@@ -90,8 +90,8 @@ int main()
         return -1;
     }
     
-    //EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
-    //PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xE8\x06\x00\x00\xF3\x44\x0F\x11\x64\x24\x68", (char*)"xxxxxxxxxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
+    EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
+    PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xE8\x06\x00\x00", (char*)"xxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
     //DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x38\x02\x00\x00\x33\x33\xB3\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
     //DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x44\x02\x00\x00\x66\x66\xE6\x3E\x41\x0F\x28\xC2", (char*)"xxxxxxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
     //DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x8B\x44\x24\x48\x89\x44\x24\x68", (char*)"xxxxxxxxxxxx", (char*)"DecPistolAmmoAddr");
@@ -105,7 +105,7 @@ int main()
     //DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\x00\x01\x00\x00\x8B\x9E\x98\x00\x00\x00", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecMedKitAddr");
     //DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\xB0\x00\x00\x00\x48\x8B\x7D\x08\x0F\xB6\x45\xAC", (char*)"xxxxxxxxxxxxxx", (char*)"FlashlightIDPatternAddr") - 0x33;
     //std::cout << ">> DecFlashlightAddr = 0x" << DecFlashlightAddr << "\n";
-    std::cout << "Godmode and inf util have been disabled!\n";
+    std::cout << "Inf util has been disabled!\n";
     if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE))
     {
         std::cout << failedSetCH;
