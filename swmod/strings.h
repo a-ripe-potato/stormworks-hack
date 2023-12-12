@@ -2,7 +2,7 @@
 #include "string"
 
 static std::string prefix = ">> ";
-static std::string MODVERSION = "Version: 1.0.4\n";
+static std::string MODVERSION = "Version: 1.0.6\n";
 static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 static std::string foundPattern = prefix + "Found pattern: ";
@@ -18,6 +18,8 @@ static std::string enableGodmodeStr = prefix + "Godmode enabled.\n";
 static std::string disableGodmodeStr = prefix + "Godmode disabled.\n";
 static std::string enableInfammoStr = prefix + "Inf ammo enabled.\n";
 static std::string disableInfammoStr = prefix + "Inf ammo disabled.\n";
+static std::string enableGInfammoStr = prefix + "Global Inf ammo enabled.\n";
+static std::string disableGInfammoStr = prefix + "Global Inf ammo disabled.\n";
 static std::string enableInfutilStr = prefix + "Inf util enabled.\n";
 static std::string disableInfutilStr = prefix + "Inf util disabled.\n";
 static std::string enableAutoloadoutStr = prefix + "Auto loadout enabled.\n";

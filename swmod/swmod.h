@@ -26,6 +26,7 @@ struct allowList {
 struct modList {
     bool god = false;
     bool infAmmo = false;
+    bool infAmmoG = false;
     bool infUtil = false;
     bool infElec = false;
     bool infFuel = false;
