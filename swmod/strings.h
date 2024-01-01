@@ -42,21 +42,16 @@ static std::string enableVehDmgStr = prefix + "Vehicle damage enabled.\n";
 static std::string disableVehDmgStr = prefix + "Vehicle damage disabled.\n";
 static std::string enableMapPlrsStr = prefix + "Map players enabled.\n";
 static std::string disableMapPlrsStr = prefix + "Map players disabled.\n";
+static std::string enableDebugStr = prefix + "Debugging Enabled.\n";
+static std::string disableDebugStr = prefix + "Debugging Disabled.\n";
 
 
 void printHelpMessage();
 
 //TODO: short term
 // fix auto loadout
-// fix inf c4
-// 
 // -------------------------------------------------------------------------------------------------
 //TODO: long term
 // heal command
-// show players
 // force workbench
-// better command parsing and revise command structure
-// find more shit to fuck with
-// perform full stability test 
 // find chat func
-// find a way to get plrobj easy

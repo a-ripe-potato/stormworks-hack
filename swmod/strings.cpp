@@ -15,7 +15,6 @@ void printHelpMessage() {
     std::cout << "|   dw    |disable weapons|         |\n";
     std::cout << "|   ew    |enable  weapons|         |\n";
     std::cout << "|  sp,mp  | show map plrs |         |\n";
-    std::cout << "|   set   |   set vars    |   plr   |\n";
     std::cout << "|   smg   |   gives smg   |         |\n";
     std::cout << "|   loa   |    loadout    |         |\n";
     std::cout << "|   al    |  auto loadout |         |\n";

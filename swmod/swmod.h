@@ -52,3 +52,9 @@ bool verifyPlrObjAddress();
 void StartActionThread();
 
 void ActionThread();
+
+bool getPlayerObjWhenAvailable();
+
+void waitForPlrObj();
+
+bool tryGetPlrObj();
