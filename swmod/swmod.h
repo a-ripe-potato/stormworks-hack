@@ -1,6 +1,11 @@
 #pragma once
 #include <windows.h> 
 #include <iostream>
+#include "vector"
+#include <sstream>
+#include <iterator>
+#include <math.h>
+
 
 void readyCmdLine();
 
@@ -14,7 +19,9 @@ void EnableInfUtil();
 
 void DisableInfUtil();
 
-void GiveItem(void* PlrObjAddr, DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo);
+void GiveItem(DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo);
+
+void setChargeAndAmmo(DWORD itemSlot, void* DWcharge, void* DWammo);
 
 struct allowList {
     bool god = false;
@@ -35,8 +42,6 @@ struct modList {
     bool forceAdminMenu = false;
     bool vehDamage = false;
     bool mapPlrs = false;
-    bool disableWeapons = false;
-    bool enableWeapons = false;
 };
 
 void cleanup();
@@ -53,8 +58,15 @@ void StartActionThread();
 
 void ActionThread();
 
-bool getPlayerObjWhenAvailable();
+void getPlayerObjWhenAvailable();
 
 void waitForPlrObj();
 
-bool tryGetPlrObj();
+void tryGetPlrObj();
+
+std::vector<std::string> splitStringBySpace(std::string str);
+
+template <size_t N>
+void splitString(std::string(&arr)[N], std::string str);
+
+std::string ieee_float_to_hex(float f);

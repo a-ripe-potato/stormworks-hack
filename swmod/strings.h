@@ -2,7 +2,7 @@
 #include "string"
 
 static std::string prefix = ">> ";
-static std::string MODVERSION = "Version: 1.0.6\n";
+static std::string MODVERSION = "Version: 1.1.0 (game version: v1.9.21)\n";
 static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 static std::string foundPattern = prefix + "Found pattern: ";
@@ -52,6 +52,5 @@ void printHelpMessage();
 // fix auto loadout
 // -------------------------------------------------------------------------------------------------
 //TODO: long term
-// heal command
 // force workbench
 // find chat func

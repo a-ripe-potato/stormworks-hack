@@ -12,9 +12,11 @@ void printHelpMessage() {
     std::cout << "|   am    |   admin menu  |         |\n";
     std::cout << "|   nc    |    no clip    |         |\n";
     std::cout << "|   vd    |   veh damage  |         |\n";
-    std::cout << "|   dw    |disable weapons|         |\n";
-    std::cout << "|   ew    |enable  weapons|         |\n";
     std::cout << "|  sp,mp  | show map plrs |         |\n";
+    std::cout << "|  heal   |   heals plr   |         |\n";
+    std::cout << "|  kill   |   kills plr   |         |\n";
+    std::cout << "|  reload |reloads weapons|         |\n";
+    std::cout << "|   fix   | repairs items |         |\n";
     std::cout << "|   smg   |   gives smg   |         |\n";
     std::cout << "|   loa   |    loadout    |         |\n";
     std::cout << "|   al    |  auto loadout |         |\n";

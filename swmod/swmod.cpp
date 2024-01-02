@@ -9,6 +9,7 @@
 #include <thread>
 #include "strings.h"
 
+
 struct allowList al;
 struct modList ml;
 BYTE* NoClipAddr;
@@ -38,6 +39,7 @@ void* DecFlareAddr;
 void* DecMedKitAddr;
 void* DecFlashlightAddr;
 void* PlrObjAddr;
+void* PlrSlotAddr;
 char* MAXSEARCHADDR = (char*)0xFFFFFFFFFFFF0000;
 MODULEENTRY32 Module;
 HANDLE hProcess;
@@ -73,11 +75,12 @@ int main()
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processID);
         Module = getModule(processID, (wchar_t*)(L"stormworks64.exe"));
         printf("%smodule base addr 0x%p\n",prefix.c_str(), Module.modBaseAddr);
-        if (!getPlayerObjWhenAvailable()) {
-            printf("%sFailed to locate player object, waiting for init\n", prefix.c_str());
+        getPlayerObjWhenAvailable();
+        if (!verifyPlrObjAddress()) {
+            printf("%sFailed to locate player object, waiting for init.\n", prefix.c_str());
         }
         else {
-
+            PlrSlotAddr = (char*)PlrObjAddr + 0x240;
         }
         LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD5EB2;
         InfElecAddr = (BYTE*)LockSettAddr + 0x1;
@@ -162,7 +165,7 @@ void readyCmdLine()
     std::string cmd;
     //char cmd[16];
     std::cout << prefix;
-    std::cin >> cmd;
+    std::getline(std::cin, cmd);
     if (cmd == "")
     {
         std::cout << "skipped command\n";
@@ -188,8 +191,8 @@ void ProcessCommand(std::string command)
     //auto loadout
     if (command == "al")
     {
-        std::cout << actionUnavailableStr; //need to fix this
-        return;
+        //std::cout << actionUnavailableStr; //need to fix this
+        //return;
 
         if (verifyPlrObjAddress())
         {
@@ -243,13 +246,51 @@ void ProcessCommand(std::string command)
         return;
     }
 
-    if (command == "dbg") {
+    if (command == "heal") {
+        if (verifyPlrObjAddress()) {
+            PatchEX(hProcess, (BYTE*)PlrObjAddr + 0x3C4, (void*)"\x00\x00\xC8\x42", 4);
+            printf("%sPlayer healed!\n",prefix.c_str());
+        }
+        else {
+            getPlayerObjWhenAvailable();
+            printf("%s\n", actionUnavailableStr.c_str());
+        }
         return;
     }
 
-    if (command == "stopdbg") {
+    if (command == "die" || command == "kill") {
+        if (verifyPlrObjAddress()) {
+            PatchEX(hProcess, (BYTE*)PlrObjAddr + 0x3C4, (void*)"\x00\x00\x00\x00", 4);
+            printf("%sPlayer killed!\n",prefix.c_str());
+        }
+        else {
+            getPlayerObjWhenAvailable();
+            printf("%s\n", actionUnavailableStr.c_str());
+        }
         return;
     }
+
+    if (command == "start ps") {
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sStarted player object scanner\n",prefix.c_str());
+        }
+        else {
+            printf("%sPlayer object has already been found\n",prefix.c_str());
+        }
+        return;
+    }
+
+    if (command[0] == 'g' && command[1] == 'i') {
+        return;
+        std::string a[5];
+        splitString(a, command);
+        //GiveItem(PlrObjAddr, (DWORD)std::stoi(a[1]), std::stoi(a[2]),);
+   
+    }
+
+
+
 
     //infinite page
     if (cmd == 'i')
@@ -377,46 +418,6 @@ void ProcessCommand(std::string command)
         }
         return;
     }
-    //disable weapons
-    if (command == "dw")
-    {
-        if (ml.enableWeapons)
-        {
-            std::cout << actionUnavailableStr;
-            return;
-        }
-        if (!ml.disableWeapons) {
-            ml.disableWeapons = true;
-            StartActionThread();
-            std::cout << enableForceDisableWeaponsStr;
-
-        }
-        else {
-            std::cout << disableForceDisableWeaponsStr;
-            ml.disableWeapons = false;
-        }
-        return;
-    }
-    //enable weapons
-    if (command == "ew")
-    {
-        if (ml.disableWeapons)
-        {
-            std::cout << actionUnavailableStr;
-            return;
-        }
-        if (!ml.enableWeapons) {
-            ml.enableWeapons = true;
-            StartActionThread();
-            std::cout << enableForceEnableWeaponsStr;
-
-        }
-        else {
-            std::cout << disableForceEnableWeaponsStr;
-            ml.disableWeapons = false;
-        }
-        return;
-    }
     
     //show map players
     if (command == "sp" || command == "mp")
@@ -457,6 +458,87 @@ void ProcessCommand(std::string command)
         return;
     }
 
+    if (command == "ext")
+    {
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sPlease try again\n", prefix.c_str());
+            return;
+        }
+        else {
+            
+        }
+        GiveItem(0, (void*)"\x0A\x00\x00\x00", (void*)"\x00\x00\x20\x41", (void*)"\x00\x00\x00\x00");
+        printf("%sTime to fly\n",prefix.c_str());
+        return;
+    }
+
+    if (command[0] == 'f' && command[1] == 'l' && command[2] == 'a' && command[3] == 's' && command[4] == 'h')
+    {
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sPlease try again\n", prefix.c_str());
+            return;
+        }
+        std::string a[5];
+        splitString(a, command);
+        UINT arg = 1;
+        if (!a[1].empty()) {
+            arg = stoi(a[1]);
+        }
+        if (arg < 1 || arg > 9) {
+            printf("%s\n",invalidArgumentStr.c_str());
+            return;
+        }
+        GiveItem(arg, (void*)"\x0F\x00\x00\x00", (void*)"\x00\x00\xC8\x42", (void*)"\x00\x00\x00\x00");
+        printf("%sLet there be light!\n", prefix.c_str());
+        return;
+    }
+
+    if (command == "reload" || command == "rl")
+    {
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sPlease try again\n", prefix.c_str());
+            return;
+        }
+        std::string a[5];
+        splitString(a, command);
+        UINT arg = 0;
+        if (!a[1].empty()) {
+            arg = stoi(a[1]);
+        }
+        if (arg < 0 || arg > 9) {
+            printf("%s\n", invalidArgumentStr.c_str());
+            return;
+        }
+        setChargeAndAmmo(arg, (void*)"\x00\x00\x00\x00", (void*)"\x00\x00\x00\x28");
+        printf("%sWhats the point of this?\n", prefix.c_str());
+        return;
+    }
+
+    if (command == "fix" || command == "fx")
+    {
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sPlease try again\n", prefix.c_str());
+            return;
+        }
+        std::string a[5];
+        splitString(a, command);
+        UINT arg = 0;
+        if (!a[1].empty()) {
+            arg = stoi(a[1]);
+        }
+        if (arg < 0 || arg > 9) {
+            printf("%s\n", invalidArgumentStr.c_str());
+            return;
+        }
+        setChargeAndAmmo(arg, (void*)"\x00\x00\x7A\x44", (void*)"\x00\x00\x00\x00");
+        printf("%shehe\n", prefix.c_str());
+        return;
+    }
+
     if (command == "vd")
     {
         if (!ml.vehDamage) {
@@ -478,7 +560,7 @@ void ProcessCommand(std::string command)
         if (verifyPlrObjAddress())
         {
             char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-            GiveItem(PlrObjAddr, 0,(DWORD*)"\x25\x00\x00\x00",(DWORD*)"\x00\x00\x00\x00",(DWORD*)"\x28\x00\x00\x00");
+            GiveItem(0,(DWORD*)"\x25\x00\x00\x00",(DWORD*)"\x00\x00\x00\x00",(DWORD*)"\x28\x00\x00\x00");
         }
         else
         {
@@ -493,7 +575,7 @@ void ProcessCommand(std::string command)
         if (verifyPlrObjAddress())
         {
             char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-            GiveItem(PlrObjAddr, 3, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00");
+            GiveItem(3, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00");
         }
         else
         {
@@ -523,11 +605,12 @@ void ProcessCommand(std::string command)
         Sleep(500);
         exit(0);
     }
-    std::cout << "Invalid command!\n";
+    std::cout << prefix << "Invalid command!\n";
 }
 
 void cleanup()
 {
+    bPlrScanThread = false;
     if (getProcID((wchar_t*)L"stormworks64.exe") == 0) {
         CloseHandle(hProcess);
         return;
@@ -558,7 +641,7 @@ void cleanup()
     CloseHandle(hProcess);
 }
 
-void GiveItem(void* PlrObjAddr, DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo)
+void GiveItem(DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo)
 {
     if (verifyPlrObjAddress())
     {
@@ -675,16 +758,6 @@ void ActionThread()
         {
             PatchEX(hProcess, VehDamageAddr, (BYTE*)"\x00", 1);
         }
-        //disable weapons
-        if (ml.disableWeapons) {
-            PatchEX(hProcess, DisableWeaponsAddr, (BYTE*)"\x01", 1);
-
-        }
-        //enable weapons
-        if (ml.enableWeapons) {
-            PatchEX(hProcess, DisableWeaponsAddr, (BYTE*)"\x00", 1);
-
-        }
         //inf ammo
         if (ml.infAmmoG) {
             PatchEX(hProcess, InfAmmoAddr, (BYTE*)"\x01", 1);
@@ -718,8 +791,8 @@ void ActionThread()
         }
 
         if (!ml.forceNoClip && !ml.forceAdminMenu && !ml.autoLoadout && !ml.mapPlrs &&
-            !ml.infElec && !ml.infFuel && !ml.vehDamage && !ml.disableWeapons &&
-            !ml.enableWeapons && !ml.infAmmoG && !bKeepActive)
+            !ml.infElec && !ml.infFuel && !ml.vehDamage &&
+            !ml.infAmmoG && !bKeepActive)
         {
             bActionThread = false;
             break;
@@ -729,6 +802,24 @@ void ActionThread()
     //std::cout << stopActionThreadStr + "\n" + prefix;
 }
 
+void setChargeAndAmmo(DWORD itemSlot, void* DWcharge, void* DWammo)
+{
+    if (verifyPlrObjAddress())
+    {
+        DWORD* plr = (DWORD*)PlrObjAddr;
+        DWORD* slot = plr + 0x95 + 7 * itemSlot;
+        DWORD* charge = slot + 6;
+        DWORD* ammo = slot + 7;
+        PatchEX(hProcess, charge, DWcharge, 4);
+        PatchEX(hProcess, ammo, DWammo, 4);
+        //std::cout << ">> Item given!" << "\n";
+    }
+    else
+    {
+        std::cout << invalidPlrObjStr << "\n";
+    }
+
+}
 
 
 void giveLoadout()
@@ -736,15 +827,15 @@ void giveLoadout()
     if (verifyPlrObjAddress())
     {
         char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-        GiveItem(PlrObjAddr, 0, (DWORD*)"\x25\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x28\x00\x00\x00"); //smg
-        GiveItem(PlrObjAddr, 1, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //grenade
-        GiveItem(PlrObjAddr, 2, (DWORD*)"\x0D\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //flaregun
-        GiveItem(PlrObjAddr, 3, (DWORD*)"\x1F\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //c4
-        GiveItem(PlrObjAddr, 4, (DWORD*)"\x20\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //c4 det
-        GiveItem(PlrObjAddr, 6, (DWORD*)"\x0B\x00\x00\x00", (FLOAT*)"\x00\x00\x00\x00", (DWORD*)"\x04\x00\x00\x00"); //med kit
-        GiveItem(PlrObjAddr, 7, (DWORD*)"\x0F\x00\x00\x00", (FLOAT*)"\x00\x00\xC8\x42", (DWORD*)"\x00\x00\x00\x00"); //flashlight
-        GiveItem(PlrObjAddr, 8, (DWORD*)"\x06\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //binoculars
-        GiveItem(PlrObjAddr, 9, (DWORD*)"\x05\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //artic
+        GiveItem( 0, (DWORD*)"\x25\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x28\x00\x00\x00"); //smg
+        GiveItem( 1, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //grenade
+        GiveItem( 2, (DWORD*)"\x0D\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //flaregun
+        GiveItem( 3, (DWORD*)"\x1F\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //c4
+        GiveItem( 4, (DWORD*)"\x20\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //c4 det
+        GiveItem( 6, (DWORD*)"\x0B\x00\x00\x00", (FLOAT*)"\x00\x00\x00\x00", (DWORD*)"\x04\x00\x00\x00"); //med kit
+        GiveItem( 7, (DWORD*)"\x0F\x00\x00\x00", (FLOAT*)"\x00\x00\xC8\x42", (DWORD*)"\x00\x00\x00\x00"); //flashlight
+        GiveItem( 8, (DWORD*)"\x06\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //binoculars
+        GiveItem( 9, (DWORD*)"\x05\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //artic
     }
     else
     {
@@ -754,38 +845,57 @@ void giveLoadout()
     }
 }
 
-bool getPlayerObjWhenAvailable() {
-    if (tryGetPlrObj()) {
+void getPlayerObjWhenAvailable() {
+    tryGetPlrObj();
+    if (verifyPlrObjAddress()) {
         printf("%sPlayer object found: 0x%p\n", prefix.c_str(), PlrObjAddr);
-        return true;
     }
     else {
-        
         std::thread tPlrObjWait(waitForPlrObj);
         tPlrObjWait.detach();
-        return false;
     }
+}
+
+std::vector<std::string> splitStringBySpace(std::string str)
+{
+    std::string word = "";
+    std::vector<std::string> v;
+    unsigned int pos = 0;
+    for (auto x : str)
+    {
+        if (x == ' ')
+        {
+            //std::cout << word << std::endl;
+            v.insert(v.begin() + pos, word);
+            word = "";
+            pos++;
+        }
+        else {
+            word = word + x;
+        }
+    }
+    return v;
+    //std::cout << word << std::endl;
 }
 
 void waitForPlrObj() {
     bPlrScanThread = true;
-    unsigned int c = 0;
+    unsigned int c = 1;
     do {
-        if (c > 60) {
-            printf("No player obj initilized yet! (you can ignore this)\n%s", prefix.c_str());
+        if (c % 60 == 0) {
+            printf("Plr obj not found in %u scans, possibly idle.\n%s",c, prefix.c_str());
         }
-        uintptr_t plrPtrChainBase = (uintptr_t)Module.modBaseAddr + 0xBC9770;
-        PlrObjAddr = (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x6B8, 0xCA8, 0x990, 0x0, 0x98, 0x0 });
+        tryGetPlrObj();
         c++;
         Sleep(2000);
     } while (!verifyPlrObjAddress() && bPlrScanThread);
+    PlrSlotAddr = (char*)PlrObjAddr + 0x240;
     printf("Player object found after %u scans\n%s", c, prefix.c_str());
 }
 
-bool tryGetPlrObj() {
+void tryGetPlrObj() {
     uintptr_t plrPtrChainBase = (uintptr_t)Module.modBaseAddr + 0xBC9770;
-    PlrObjAddr = (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x6B8, 0xCA8, 0x990, 0x0, 0x98, 0x0 });
-    return(verifyPlrObjAddress());
+    PlrObjAddr = (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x368, 0x4D0, 0xC08, 0x9A8, 0x98, 0x0 });
 }
 
 bool verifyPlrObjAddress()
@@ -796,9 +906,30 @@ bool verifyPlrObjAddress()
 }
 
 
+//auto v{ split(str, " ") };
+template <size_t N>
+void splitString(std::string(&arr)[N], std::string str)
+{
+    int n = 0;
+    std::istringstream iss(str);
+    for (auto it = std::istream_iterator<std::string>(iss); it != std::istream_iterator<std::string>() && n < N; ++it, ++n)
+        arr[n] = *it;
+}
 
 
+std::string ieee_float_to_hex(float f)
+{
+    static_assert(std::numeric_limits<float>::is_iec559,
+        "native float must be an IEEE float");
 
+    union { float fval; std::uint32_t ival; };
+    fval = f;
+
+    std::ostringstream stm;
+    stm << std::hex << std::uppercase << ival;
+
+    return stm.str();
+}
 
 
 
