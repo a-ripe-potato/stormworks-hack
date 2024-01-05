@@ -8,6 +8,7 @@
 #include "patternscan.h"
 #include <thread>
 #include "strings.h"
+#include "items.h"
 
 
 struct allowList al;
@@ -50,6 +51,7 @@ DWORD processID;
 bool bPlrScanThread = false;
 
 
+
 BOOL WINAPI HandlerRoutine(
     _In_ DWORD dwCtrlType) {
     if (dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_C_EVENT) {
@@ -67,6 +69,7 @@ BOOL WINAPI HandlerRoutine(
 
 int main()
 {
+    
     SetConsoleTitleW(L"Silly Stormworks Mod");
     MSG msg = { };
     processID = getProcID((wchar_t *)L"stormworks64.exe");
@@ -174,22 +177,21 @@ void readyCmdLine()
     ProcessCommand(cmd);
 }
 
-void ProcessCommand(std::string command)
+void ProcessCommand(std::string cmd)
  
 {
-    int  page = 0; //0 is main, 1 is infinite 
-
-    char cmd = command[0];
+    std::string command[8];
+    splitString(command, cmd);
 
     //version
-    if (command == "version" || command == "ver")
+    if (command[0] == "version" || command[0] == "ver")
     {
         std::cout << MODVERSION;
         return;
     }
     
     //auto loadout
-    if (command == "al")
+    if (command[0] == "al")
     {
         //std::cout << actionUnavailableStr; //need to fix this
         //return;
@@ -215,7 +217,7 @@ void ProcessCommand(std::string command)
     }
 
     //god mode
-    if (cmd == 'g' && command[1] == NULL || command == "god")
+    if (command[0] == "g" || command[0] == "god")
     {
         ml.god = !ml.god;
         if (ml.god) 
@@ -246,7 +248,7 @@ void ProcessCommand(std::string command)
         return;
     }
 
-    if (command == "heal") {
+    if (command[0] == "heal") {
         if (verifyPlrObjAddress()) {
             PatchEX(hProcess, (BYTE*)PlrObjAddr + 0x3C4, (void*)"\x00\x00\xC8\x42", 4);
             printf("%sPlayer healed!\n",prefix.c_str());
@@ -258,7 +260,7 @@ void ProcessCommand(std::string command)
         return;
     }
 
-    if (command == "die" || command == "kill") {
+    if (command[0] == "die" || command[0] == "kill") {
         if (verifyPlrObjAddress()) {
             PatchEX(hProcess, (BYTE*)PlrObjAddr + 0x3C4, (void*)"\x00\x00\x00\x00", 4);
             printf("%sPlayer killed!\n",prefix.c_str());
@@ -270,42 +272,38 @@ void ProcessCommand(std::string command)
         return;
     }
 
-    if (command == "start ps") {
+    if (command[0] == "ps") { //player scanner
         if (!verifyPlrObjAddress()) {
             getPlayerObjWhenAvailable();
             printf("%sStarted player object scanner\n",prefix.c_str());
         }
         else {
-            printf("%sPlayer object has already been found\n",prefix.c_str());
+            printf("%sPlayer object has already been found, if this is not true, use \"flushplr\" command.\n",prefix.c_str());
         }
         return;
     }
 
-    if (command[0] == 'g' && command[1] == 'i') {
+    if (command[0] == "flushplr") {
+        PlrObjAddr = nullptr;
+        al.playerobj = false;
         return;
-        std::string a[5];
-        splitString(a, command);
-        //GiveItem(PlrObjAddr, (DWORD)std::stoi(a[1]), std::stoi(a[2]),);
-   
     }
 
 
-
-
     //infinite page
-    if (cmd == 'i')
+    if (cmd[0] == 'i')
     {
-        if (command[1] == NULL)
+        if (cmd[1] == NULL)
         {
             std::cout << invalidArgumentStr;
             return;
         }
-        for (int i = 1; i < sizeof(command) - 1; i++)
+        for (int i = 1; i < sizeof(cmd) - 1; i++)
         {
             //infinite ammo
-            if (command[i] == 'a')
+            if (cmd[i] == 'a')
             {
-                if (command[i + 1] == 'g')
+                if (cmd[i + 1] == 'g')
                 {
                     if (!ml.infAmmoG) {
                         ml.infAmmoG = true;
@@ -334,7 +332,7 @@ void ProcessCommand(std::string command)
                 }
             }
                 //infinite util
-                if (command[i] == 'u')
+                if (cmd[i] == 'u')
                 {
                     if (al.infUtil)
                     {
@@ -357,7 +355,7 @@ void ProcessCommand(std::string command)
                     }
                 }
                 //infinite electricity
-                if (command[i] == 'e')
+                if (cmd[i] == 'e')
                 {
                     if (!ml.infElec) {
                         ml.infElec = true;
@@ -371,7 +369,7 @@ void ProcessCommand(std::string command)
                     }
                 }
                 //infinite fuel
-                if (command[i] == 'f')
+                if (cmd[i] == 'f')
                 {
                     if (!ml.infFuel) {
                         ml.infFuel = true;
@@ -390,7 +388,7 @@ void ProcessCommand(std::string command)
     }
 
     //keep action thread active
-    if (command == "ka") 
+    if (command[0] == "ka")
     {
         if (!bKeepActive)
         {
@@ -404,7 +402,7 @@ void ProcessCommand(std::string command)
     }
     
     //admin menu
-    if (command == "am") 
+    if (command[0] == "am")
     {
         if (!ml.forceAdminMenu) {
             ml.forceAdminMenu = true;
@@ -420,7 +418,7 @@ void ProcessCommand(std::string command)
     }
     
     //show map players
-    if (command == "sp" || command == "mp")
+    if (command[0] == "sp" || command[0] == "mp")
     {
         if (!ml.mapPlrs) {
             ml.mapPlrs = true;
@@ -436,7 +434,7 @@ void ProcessCommand(std::string command)
     }
   
     //noclip
-    if (command == "nc" || command == "noclip") 
+    if (command[0] == "nc" || command[0] == "noclip")
     {
         if (!ml.forceNoClip) {
             ml.forceNoClip = true;
@@ -451,14 +449,15 @@ void ProcessCommand(std::string command)
     }
 
     //kill thread
-    if (command == "kt") 
+    if (command[0] == "kt")
     {
         bPlrScanThread = false;
         bActionThread = false;
         return;
     }
 
-    if (command == "ext")
+    //gives fire ext
+    if (command[0] == "ext")
     {
         if (!verifyPlrObjAddress()) {
             getPlayerObjWhenAvailable();
@@ -468,78 +467,117 @@ void ProcessCommand(std::string command)
         else {
             
         }
-        GiveItem(0, (void*)"\x0A\x00\x00\x00", (void*)"\x00\x00\x20\x41", (void*)"\x00\x00\x00\x00");
+        GiveItem(0, SWITEM::fire_extID, 100, 0);
         printf("%sTime to fly\n",prefix.c_str());
         return;
     }
 
-    if (command[0] == 'f' && command[1] == 'l' && command[2] == 'a' && command[3] == 's' && command[4] == 'h')
+    //give command
+    if (command[0] == "give") {
+        
+        if (!verifyPlrObjAddress()) {
+            getPlayerObjWhenAvailable();
+            printf("%sPlease try again\n", prefix.c_str());
+            return;
+        }
+        if (command[1].empty() || command[2].empty()) {
+            printf("%s\n",invalidArgumentStr.c_str());
+            return;
+        }
+
+        UINT item = stoi(command[1]);
+        UINT slot = stoi(command[2]);
+        if (slot < 0 || slot > 10) {
+            printf("%s\n", invalidArgumentStr.c_str());
+            return;
+        }
+        GiveItem(slot,item, 100, 100);
+        return;
+    }
+
+
+
+    //gives flashlight
+    if (command[0] == "flash" || command[0] == "flashlight")
     {
         if (!verifyPlrObjAddress()) {
             getPlayerObjWhenAvailable();
             printf("%sPlease try again\n", prefix.c_str());
             return;
         }
-        std::string a[5];
-        splitString(a, command);
+        
         UINT arg = 1;
-        if (!a[1].empty()) {
-            arg = stoi(a[1]);
+        if (!command[1].empty()) {
+            arg = stoi(command[1]);
         }
         if (arg < 1 || arg > 9) {
             printf("%s\n",invalidArgumentStr.c_str());
             return;
         }
-        GiveItem(arg, (void*)"\x0F\x00\x00\x00", (void*)"\x00\x00\xC8\x42", (void*)"\x00\x00\x00\x00");
+
+        //int i = *(reinterpret_cast<int*>(&f));
+        //printf("%08x\n", i);
+        GiveItem(arg, SWITEM::flashlightID, 100, 0);
         printf("%sLet there be light!\n", prefix.c_str());
         return;
     }
 
-    if (command == "reload" || command == "rl")
+    //reloads primary
+    if (command[0] == "reload" || command[0] == "rl")
     {
         if (!verifyPlrObjAddress()) {
             getPlayerObjWhenAvailable();
             printf("%sPlease try again\n", prefix.c_str());
             return;
         }
-        std::string a[5];
-        splitString(a, command);
         UINT arg = 0;
-        if (!a[1].empty()) {
-            arg = stoi(a[1]);
+        if (!command[1].empty()) {
+            arg = stoi(command[1]);
         }
         if (arg < 0 || arg > 9) {
             printf("%s\n", invalidArgumentStr.c_str());
             return;
         }
-        setChargeAndAmmo(arg, (void*)"\x00\x00\x00\x00", (void*)"\x00\x00\x00\x28");
+        setAmmo(arg, 1000);
         printf("%sWhats the point of this?\n", prefix.c_str());
         return;
     }
 
-    if (command == "fix" || command == "fx")
+    //fixes integers
+    if (command[0] == "fix" || command[0] == "fx")
     {
         if (!verifyPlrObjAddress()) {
             getPlayerObjWhenAvailable();
             printf("%sPlease try again\n", prefix.c_str());
             return;
         }
-        std::string a[5];
-        splitString(a, command);
         UINT arg = 0;
-        if (!a[1].empty()) {
-            arg = stoi(a[1]);
+        if (!command[1].empty()) {
+            arg = stoi(command[1]);
         }
         if (arg < 0 || arg > 9) {
             printf("%s\n", invalidArgumentStr.c_str());
             return;
         }
-        setChargeAndAmmo(arg, (void*)"\x00\x00\x7A\x44", (void*)"\x00\x00\x00\x00");
+        
+        setCharge(arg, 100);
+        setAmmo(arg, 100);
         printf("%shehe\n", prefix.c_str());
         return;
     }
 
-    if (command == "vd")
+
+ 
+    //test command
+    if (command[0] == "dbg") {
+        //float f = 100.0f;
+        //int i = *(reinterpret_cast<int*>(&f));
+        //printf("%s%08x\n",prefix.c_str(), i);
+        return;
+    }
+
+
+    if (command[0] == "vd")
     {
         if (!ml.vehDamage) {
             ml.vehDamage = true;
@@ -555,12 +593,12 @@ void ProcessCommand(std::string command)
     }
 
     //smg 
-    if (command == "smg")
+    if (command[0] == "smg")
     {
         if (verifyPlrObjAddress())
         {
             char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-            GiveItem(0,(DWORD*)"\x25\x00\x00\x00",(DWORD*)"\x00\x00\x00\x00",(DWORD*)"\x28\x00\x00\x00");
+            GiveItem(0,SWITEM::smgID,0,40);
         }
         else
         {
@@ -570,12 +608,12 @@ void ProcessCommand(std::string command)
         return;
     }
     
-    if (command == "gre")
+    if (command[0] == "gre")
     {
         if (verifyPlrObjAddress())
         {
             char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-            GiveItem(3, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00");
+            GiveItem(3, SWITEM::grenadeID, 0, 1);
         }
         else
         {
@@ -586,20 +624,20 @@ void ProcessCommand(std::string command)
     }
 
     //loadout
-    if (command == "loa")
+    if (command[0] == "loa")
     {
         giveLoadout();
         return;
     }
 
     //help 
-    if (cmd == '?' || command == "help")
+    if (command[0] == "?" || command[0] == "help")
     {
         printHelpMessage();
         return;
     }
     //exit
-    if (cmd == 'x')
+    if (command[0] == "x")
     {
         cleanup();
         Sleep(500);
@@ -641,24 +679,24 @@ void cleanup()
     CloseHandle(hProcess);
 }
 
-void GiveItem(DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo)
+void GiveItem(DWORD itemSlot, int itemID, float charge, int ammo)
 {
-    if (verifyPlrObjAddress())
+    if (!verifyPlrObjAddress())
     {
-        DWORD* plr = (DWORD*)PlrObjAddr;
-        DWORD* slot = plr + 0x95 + 7 * itemSlot;
-        DWORD* item = slot + 5;
-        DWORD* charge = slot + 6;
-        DWORD* ammo = slot + 7;
-        PatchEX(hProcess, item, itemID, 4);
-        PatchEX(hProcess, charge, DWcharge, 4);
-        PatchEX(hProcess, ammo, DWammo, 4);
+        printf("%s",invalidPlrObjStr.c_str());
+        return;
+    }
+        
+        DWORD* plrAddr = (DWORD*)PlrObjAddr;
+        DWORD* slotAddr = plrAddr + 0x95 + 7 * itemSlot;
+        DWORD* itemAddr = slotAddr + 5;
+        DWORD* chargeAddr = slotAddr + 6;
+        DWORD* ammoAddr = slotAddr + 7;
+        PatchEX(hProcess, itemAddr, reinterpret_cast<int*>(&itemID), 4);
+        PatchEX(hProcess, chargeAddr, reinterpret_cast<int*>(&charge), 4);
+        PatchEX(hProcess, ammoAddr, reinterpret_cast<int*>(&ammo), 4);
         //std::cout << ">> Item given!" << "\n";
-    }
-    else 
-    {
-        std::cout << invalidPlrObjStr << "\n";
-    }
+    
 
 }
 
@@ -802,24 +840,34 @@ void ActionThread()
     //std::cout << stopActionThreadStr + "\n" + prefix;
 }
 
-void setChargeAndAmmo(DWORD itemSlot, void* DWcharge, void* DWammo)
+void setCharge(UINT itemSlot, float charge)
 {
-    if (verifyPlrObjAddress())
-    {
-        DWORD* plr = (DWORD*)PlrObjAddr;
-        DWORD* slot = plr + 0x95 + 7 * itemSlot;
-        DWORD* charge = slot + 6;
-        DWORD* ammo = slot + 7;
-        PatchEX(hProcess, charge, DWcharge, 4);
-        PatchEX(hProcess, ammo, DWammo, 4);
-        //std::cout << ">> Item given!" << "\n";
-    }
-    else
-    {
-        std::cout << invalidPlrObjStr << "\n";
-    }
 
+    if (!verifyPlrObjAddress())
+    {
+        printf("%s\n", prefix.c_str());
+        return;
+    }
+    DWORD* plrAddr = (DWORD*)PlrObjAddr;
+    DWORD* slotAddr = plrAddr + 0x95 + 7 * itemSlot;
+    DWORD* ammoAddr = slotAddr + 6;
+    PatchEX(hProcess, ammoAddr, reinterpret_cast<int*>(&charge), 4);
 }
+
+void setAmmo(UINT itemSlot, int ammo)
+{
+
+    if (!verifyPlrObjAddress())
+    {
+        printf("%s\n",prefix.c_str());
+        return;
+    }
+        DWORD* plrAddr = (DWORD*)PlrObjAddr;
+        DWORD* slotAddr = plrAddr + 0x95 + 7 * itemSlot;
+        DWORD* ammoAddr = slotAddr + 7;
+        PatchEX(hProcess, ammoAddr, reinterpret_cast<int*>(&ammo), 4);
+}
+
 
 
 void giveLoadout()
@@ -827,15 +875,14 @@ void giveLoadout()
     if (verifyPlrObjAddress())
     {
         char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-        GiveItem( 0, (DWORD*)"\x25\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x28\x00\x00\x00"); //smg
-        GiveItem( 1, (DWORD*)"\x29\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //grenade
-        GiveItem( 2, (DWORD*)"\x0D\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //flaregun
-        GiveItem( 3, (DWORD*)"\x1F\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x01\x00\x00\x00"); //c4
-        GiveItem( 4, (DWORD*)"\x20\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //c4 det
-        GiveItem( 6, (DWORD*)"\x0B\x00\x00\x00", (FLOAT*)"\x00\x00\x00\x00", (DWORD*)"\x04\x00\x00\x00"); //med kit
-        GiveItem( 7, (DWORD*)"\x0F\x00\x00\x00", (FLOAT*)"\x00\x00\xC8\x42", (DWORD*)"\x00\x00\x00\x00"); //flashlight
-        GiveItem( 8, (DWORD*)"\x06\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //binoculars
-        GiveItem( 9, (DWORD*)"\x05\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00", (DWORD*)"\x00\x00\x00\x00"); //artic
+        GiveItem(0, SWITEM::smgID, 0, 40); 
+        GiveItem(1, SWITEM::flashlightID, 100, 0);
+        GiveItem(2, SWITEM::medkitID, 0, 4);
+        GiveItem(3, SWITEM::C4ID, 0, 1); 
+        GiveItem(4, SWITEM::C4_detID, 0, 0); 
+        GiveItem(7, SWITEM::grenadeID, 0, 1);
+        GiveItem(8, SWITEM::binocularsID, 0, 0); 
+        GiveItem(9, SWITEM::arcticID, 0, 0);
     }
     else
     {
@@ -917,19 +964,6 @@ void splitString(std::string(&arr)[N], std::string str)
 }
 
 
-std::string ieee_float_to_hex(float f)
-{
-    static_assert(std::numeric_limits<float>::is_iec559,
-        "native float must be an IEEE float");
-
-    union { float fval; std::uint32_t ival; };
-    fval = f;
-
-    std::ostringstream stm;
-    stm << std::hex << std::uppercase << ival;
-
-    return stm.str();
-}
 
 
 

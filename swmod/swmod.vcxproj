@@ -134,6 +134,7 @@
     <ClCompile Include="swmod.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="items.h" />
     <ClInclude Include="mem.h" />
     <ClInclude Include="patternscan.h" />
     <ClInclude Include="proctools.h" />

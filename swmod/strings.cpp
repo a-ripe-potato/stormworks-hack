@@ -16,7 +16,8 @@ void printHelpMessage() {
     std::cout << "|  heal   |   heals plr   |         |\n";
     std::cout << "|  kill   |   kills plr   |         |\n";
     std::cout << "|  reload |reloads weapons|         |\n";
-    std::cout << "|   fix   | repairs items |         |\n";
+    std::cout << "|  give   |  gives items  |         |\n";
+    std::cout << "|   fix   |  fixes items  |         |\n";
     std::cout << "|   smg   |   gives smg   |         |\n";
     std::cout << "|   loa   |    loadout    |         |\n";
     std::cout << "|   al    |  auto loadout |         |\n";

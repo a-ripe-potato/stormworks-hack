@@ -2,7 +2,7 @@
 #include "string"
 
 static std::string prefix = ">> ";
-static std::string MODVERSION = "Version: 1.1.0 (game version: v1.9.21)\n";
+static std::string MODVERSION = "Version: 1.1.1 (game version: v1.9.21)\n";
 static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 static std::string foundPattern = prefix + "Found pattern: ";
@@ -13,7 +13,7 @@ static std::string invalidPlrObjStr = prefix + "PlrObjAddr not specified or is i
 static std::string startActionThreadStr = prefix + "Action thread started!\n";
 static std::string stopActionThreadStr = "Action thread stopped!\n";
 static std::string actionUnavailableStr = prefix + "That action is unavailable!\n";
-static std::string invalidArgumentStr = prefix + "Invalid argument.\n";
+static std::string invalidArgumentStr = prefix + "Invalid argument supplied!\n";
 static std::string enableGodmodeStr = prefix + "Godmode enabled.\n";
 static std::string disableGodmodeStr = prefix + "Godmode disabled.\n";
 static std::string enableInfammoStr = prefix + "Inf ammo enabled.\n";

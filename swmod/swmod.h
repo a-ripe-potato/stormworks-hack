@@ -9,7 +9,7 @@
 
 void readyCmdLine();
 
-void ProcessCommand(std::string command);
+void ProcessCommand(std::string cmd);
 
 void EnableInfAmmo();
 
@@ -19,9 +19,11 @@ void EnableInfUtil();
 
 void DisableInfUtil();
 
-void GiveItem(DWORD itemSlot, void* itemID, void* DWcharge, void* DWammo);
+void GiveItem(DWORD itemSlot, int itemID, float charge, int ammo);
 
-void setChargeAndAmmo(DWORD itemSlot, void* DWcharge, void* DWammo);
+void setCharge(UINT itemSlot, float charge);
+
+void setAmmo(UINT itemSlot, int charge);
 
 struct allowList {
     bool god = false;
@@ -43,6 +45,12 @@ struct modList {
     bool vehDamage = false;
     bool mapPlrs = false;
 };
+
+ static const struct ItemData {
+    static const bool bC4IsFloat = false;
+    static const int C4id = 32;
+};
+
 
 void cleanup();
 
@@ -69,4 +77,3 @@ std::vector<std::string> splitStringBySpace(std::string str);
 template <size_t N>
 void splitString(std::string(&arr)[N], std::string str);
 
-std::string ieee_float_to_hex(float f);
