@@ -70,7 +70,7 @@ void getPlayerObjWhenAvailable();
 
 void waitForPlrObj();
 
-void tryGetPlrObj();
+BYTE* tryGetPlrObj();
 
 std::vector<std::string> splitStringBySpace(std::string str);
 

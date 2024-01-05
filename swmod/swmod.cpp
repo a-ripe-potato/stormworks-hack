@@ -85,7 +85,7 @@ int main()
         else {
             PlrSlotAddr = (char*)PlrObjAddr + 0x240;
         }
-        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD5EB2;
+        LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBD7EE2;
         InfElecAddr = (BYTE*)LockSettAddr + 0x1;
         InfFuelAddr = (BYTE*)LockSettAddr + 0x2;
         DisableWeaponsAddr = (BYTE*)LockSettAddr + 0x4;
@@ -107,17 +107,17 @@ int main()
     
     EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
     PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xE8\x06\x00\x00", (char*)"xxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
-    DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x50\x02\x00\x00\x33\x33\xB3\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
-    DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x5C\x02\x00\x00\x66\x66\xE6\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
-    DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x8B\x44\x24\x48\x89\x44\x24\x68", (char*)"xxxxxxxxxxxx", (char*)"DecPistolAmmoAddr");
-    DecC4Addr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4E\x08\xE9\x06\xEE\xFF\xFF", (char*)"xxxxxxxxx", (char*)"DecC4Addr");
+    DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x68\x02\x00\x00\x33\x33\xB3\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
+    DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4D\x08\xC7\x85\x74\x02\x00\x00\x66\x66\xE6\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
+    DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xFF\xC8\x41\x89\x46\x08\x8B\x44\x24\x68", (char*)"xxxxxxxxxx", (char*)"DecPistolAmmoAddr");
+    DecC4Addr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4E\x08\xE9\xDA\xED\xFF\xFF", (char*)"xxxxxxxxx", (char*)"DecC4Addr");
     DecGrenadeAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x40\xB7\x01\x45\x38\xBD", (char*)"xxxxxxxxxx", (char*)"DecGrenadeAddr");
     DecPrimaryWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x44\x0F\x5C\xC7\x41\x0F\x28\xFA\xF3\x41\x0F\x5F\xF8", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryWeldingTorchAddr");
-    DecPrimaryFireExtAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x80\xBE\x08\x24\x00\x00\x00\x74\x23", (char*)"xxxxxxxxxx", (char*)"DecFireExtIDPatternAddr") + 0x10;
-    DecFlaregunAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xC6\xFA\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlaregunAddr");
+    DecFlaregunAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xFF\xC8\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xC8", (char*)"xxxxxxxxxxxxxxxx", (char*)"DecFlaregunAddr");
     DecFlareAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xFB\xFC\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlareAddr");
-    DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\x00\x01\x00\x00\x8B\x9E\x98", (char*)"xxxxxxxxxxxxxx", (char*)"DecMedKitAddr");
-    DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\x50\xF7\xFF\xFF\x45\x84\xD2", (char*)"xxxxxxxxx", (char*)"FlashlightIDPatternAddr") + 0x15;
+    DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\xF0", (char*)"xxxxxxxx", (char*)"DecMedKitAddr");
+    DecPrimaryFireExtAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x80\xBE\x08\x24\x00\x00\x00\x74\x23", (char*)"xxxxxxxxxx", (char*)"DecFireExtIDPatternAddr") + 0x10;
+    DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\x60\xF6\xFF\xFF\xF3\x41\x0F", (char*)"xxxxxxxxx", (char*)"FlashlightIDPatternAddr") + 0xC;
     std::cout << ">> DecFlashlightAddr = 0x" << DecFlashlightAddr << "\n";
     std::cout << ">> DecFireExtAddr = 0x" << DecPrimaryFireExtAddr << "\n";
     if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE))
@@ -704,7 +704,7 @@ void EnableInfAmmo()
 {
     NopEX(hProcess, DecPrimarySmgAmmoAddr, 4);
     NopEX(hProcess, DecPrimaryRifleAmmoAddr, 4);
-    NopEX(hProcess, DecPistolAmmoAddr, 4);
+    NopEX(hProcess, DecPistolAmmoAddr, 2);
     NopEX(hProcess, DecC4Addr, 4);
     NopEX(hProcess, DecGrenadeAddr, 4);
 }
@@ -714,9 +714,10 @@ void DisableInfAmmo()
     void* ammoDecInstruction = (void*)"\x41\xFF\x4D\x08";
     void* PisGrenAmmoDecInstruction = (void*)"\x41\x89\x46\x08";
     void* C4DecInstruction = (void*)"\x41\xFF\x4E\x08";
+    void* pistoldec = (void*)"\xFF\xC8";
     PatchEX(hProcess, DecPrimarySmgAmmoAddr, ammoDecInstruction, 4);
     PatchEX(hProcess, DecPrimaryRifleAmmoAddr, ammoDecInstruction, 4);
-    PatchEX(hProcess, DecPistolAmmoAddr, PisGrenAmmoDecInstruction, 4);
+    PatchEX(hProcess, DecPistolAmmoAddr, pistoldec, 2);
     PatchEX(hProcess, DecC4Addr, C4DecInstruction, 4);
     PatchEX(hProcess, DecGrenadeAddr, PisGrenAmmoDecInstruction, 4);
 }
@@ -728,7 +729,7 @@ void EnableInfUtil()
 
     PatchEX(hProcess, DecFlashlightAddr, addIns2, 4);
     NopEX(hProcess, DecFlareAddr, 4);
-    NopEX(hProcess, DecFlaregunAddr, 4);
+    NopEX(hProcess, DecFlaregunAddr, 2);
     PatchEX(hProcess, DecPrimaryWeldingTorchAddr, addIns, 5);
     PatchEX(hProcess, DecPrimaryFireExtAddr, addIns2, 4);
     NopEX(hProcess, DecMedKitAddr, 4);
@@ -740,9 +741,10 @@ void DisableInfUtil()
     void* utilDecInstruction = (void*)"\xF3\x41\x0F\x11\x7D\x04";
     void* FlareDecInstruction = (void*)"\x41\x89\x46\x08";
     void* subIns2 = (void*)"\xF3\x0F\x5C\xC7";
+    void* FGdecIns = (void*)"\xFF\xC8";
     PatchEX(hProcess, DecFlashlightAddr, subIns2, 4);
     PatchEX(hProcess, DecFlareAddr, FlareDecInstruction, 4);
-    PatchEX(hProcess, DecFlaregunAddr, FlareDecInstruction, 4);
+    PatchEX(hProcess, DecFlaregunAddr, FGdecIns, 2);
     PatchEX(hProcess, DecMedKitAddr, FlareDecInstruction, 4);
     PatchEX(hProcess, DecPrimaryWeldingTorchAddr, subIns, 5);
     PatchEX(hProcess, DecPrimaryFireExtAddr, subIns2, 4);
@@ -893,7 +895,7 @@ void giveLoadout()
 }
 
 void getPlayerObjWhenAvailable() {
-    tryGetPlrObj();
+    PlrObjAddr = tryGetPlrObj();
     if (verifyPlrObjAddress()) {
         printf("%sPlayer object found: 0x%p\n", prefix.c_str(), PlrObjAddr);
     }
@@ -932,7 +934,7 @@ void waitForPlrObj() {
         if (c % 60 == 0) {
             printf("Plr obj not found in %u scans, possibly idle.\n%s",c, prefix.c_str());
         }
-        tryGetPlrObj();
+        PlrObjAddr = tryGetPlrObj();
         c++;
         Sleep(2000);
     } while (!verifyPlrObjAddress() && bPlrScanThread);
@@ -940,15 +942,16 @@ void waitForPlrObj() {
     printf("Player object found after %u scans\n%s", c, prefix.c_str());
 }
 
-void tryGetPlrObj() {
-    uintptr_t plrPtrChainBase = (uintptr_t)Module.modBaseAddr + 0xBC9770;
-    PlrObjAddr = (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x368, 0x4D0, 0xC08, 0x9A8, 0x98, 0x0 });
+BYTE* tryGetPlrObj() {
+    uintptr_t plrPtrChainBase = (uintptr_t)Module.modBaseAddr + 0xBEBC68;
+    return (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x2F0, 0x140, 0x270, 0x50, 0x48, 0x370, 0x0 });
 }
 
 bool verifyPlrObjAddress()
 {
     if (PlrObjAddr == NULL) { return false; }
-    al.playerobj = (DWORD)ProtectedRead(hProcess, PlrObjAddr, 4) == 4;
+    al.playerobj = PlrObjAddr == tryGetPlrObj() && (DWORD)ProtectedRead(hProcess, PlrObjAddr, 4) == 4;
+    //al.playerobj = (DWORD)ProtectedRead(hProcess, PlrObjAddr, 4) == 4;
     return al.playerobj;
 }
 
