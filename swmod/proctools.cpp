@@ -1,5 +1,7 @@
 #include <iostream>
 #include "proctools.h"
+#include <windows.h>
+#pragma comment(lib, "advapi32.lib")
 
 
 DWORD getProcID(wchar_t * exeName)
@@ -61,9 +63,17 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, std::vector<unsigned int> off
 	for (unsigned int i = 0; i < offsets.size(); ++i)
 	{
 		if (!ReadProcessMemory(hProc, (BYTE*)addr, &addr, sizeof(addr), 0) && GetLastError() != 0x12B) {
-			printf("Failed in FindDMAAddy() 0x%X\n", GetLastError());
+			if (GetLastError() == 0x3E6) {
+				printf("Failed to read memory. Invalid pointer.\n");
+			}
+			else {
+				printf("Failed in FindDMAAddy() 0x%X\n", GetLastError());
+			}
 		}
 		addr += offsets[i];
 	}
 	return addr;
 }
+
+
+

@@ -16,4 +16,3 @@ void NopEX(HANDLE hProcess, void* dst, unsigned int size);
 
 void* ProtectedRead(HANDLE hprocess, void* dst, unsigned int size);
 
-FLOAT* ProtectedFloatRead(HANDLE hProcess, void* dst, unsigned int size);

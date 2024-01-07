@@ -30,6 +30,9 @@ struct allowList {
     bool infAmmo = false;
     bool infUtil = false;
     bool playerobj = false;
+    bool noSpread = false;
+    bool rapidFire = false;
+    bool projID = false;
 };
 
 struct modList {
@@ -44,6 +47,9 @@ struct modList {
     bool forceAdminMenu = false;
     bool vehDamage = false;
     bool mapPlrs = false;
+    bool noSpread = false;
+    bool rapidFire = false;
+    bool projidchanged = false;
 };
 
  static const struct ItemData {
@@ -77,3 +83,12 @@ std::vector<std::string> splitStringBySpace(std::string str);
 template <size_t N>
 void splitString(std::string(&arr)[N], std::string str);
 
+void EnableNoSpread();
+
+void DisableNoSpread();
+
+void EnableRapidFire();
+
+void DisableRapidFire();
+
+void changeProjId(UINT projID);

@@ -1,7 +1,7 @@
 
 #include "swmod.h"
 #include <iostream>
-#include <windows.h> 
+#include "windows.h"
 #include <psapi.h>
 #include "mem.h"
 #include "proctools.h"
@@ -9,6 +9,9 @@
 #include <thread>
 #include "strings.h"
 #include "items.h"
+#include <Psapi.h>
+
+
 
 
 struct allowList al;
@@ -39,9 +42,12 @@ void* DecFlaregunAddr;
 void* DecFlareAddr;
 void* DecMedKitAddr;
 void* DecFlashlightAddr;
+void* RifleNoSpreadAddr;
+void* RifleRapidFireAddr;
+void* RifleProjIDAddr;
 void* PlrObjAddr;
 void* PlrSlotAddr;
-char* MAXSEARCHADDR = (char*)0xFFFFFFFFFFFF0000;
+char* MAXSEARCHADDR = (char*)0xFFFFFF00;
 MODULEENTRY32 Module;
 HANDLE hProcess;
 std::thread tAutoloadout;
@@ -75,6 +81,7 @@ int main()
     processID = getProcID((wchar_t *)L"stormworks64.exe");
     if (processID != 0)
     {
+        
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processID);
         Module = getModule(processID, (wchar_t*)(L"stormworks64.exe"));
         printf("%smodule base addr 0x%p\n",prefix.c_str(), Module.modBaseAddr);
@@ -117,36 +124,54 @@ int main()
     DecFlareAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xFB\xFC\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlareAddr");
     DecMedKitAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x48\x8B\xBD\xF0", (char*)"xxxxxxxx", (char*)"DecMedKitAddr");
     DecPrimaryFireExtAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x80\xBE\x08\x24\x00\x00\x00\x74\x23", (char*)"xxxxxxxxxx", (char*)"DecFireExtIDPatternAddr") + 0x10;
+    RifleNoSpreadAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x59\x15\xBE\x51\x41", (char*)"xxxxxxx", (char*)"RifleNoSpreadIDPatternAddr") + 0xD;
+    RifleProjIDAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xC7\x44\x24\x38\x05\x00\x00\x00\xF3\x0F", (char*)"xxxxxxxxxx", (char*)"RifleProjIDAddr") + 4;
+    //RifleNoSpreadAddr = Module.modBaseAddr + 0x688F8B; you also got to add the offset to .text to use this
     DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\x60\xF6\xFF\xFF\xF3\x41\x0F", (char*)"xxxxxxxxx", (char*)"FlashlightIDPatternAddr") + 0xC;
-    std::cout << ">> DecFlashlightAddr = 0x" << DecFlashlightAddr << "\n";
-    std::cout << ">> DecFireExtAddr = 0x" << DecPrimaryFireExtAddr << "\n";
+    RifleRapidFireAddr = (char*)DecPrimaryRifleAmmoAddr - 4;
+    printf("%sRifleProjIDAddr = 0x%p\n", prefix.c_str(), RifleProjIDAddr);
+    printf("%sRifleNoSpreadAddr = 0x%p\n", prefix.c_str(), RifleNoSpreadAddr);
+    printf("%sDecFlashlightAddr = 0x%p\n", prefix.c_str(), DecFlashlightAddr);
+    printf("%sDecFireExtAddr = 0x%p\n", prefix.c_str(), DecPrimaryFireExtAddr);
     if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE))
     {
         std::cout << failedSetCH;
     }
 
-    if (EnvHealthDecAddr != NULL && EnvHealthDecAddr < MAXSEARCHADDR
-        && PlrHealthDecAddr != NULL && PlrHealthDecAddr < MAXSEARCHADDR)
+    if (RifleProjIDAddr != (void*)4 ) {
+        al.projID = true;
+    }
+
+    if (RifleNoSpreadAddr != NULL ) {
+        al.noSpread = true;
+    }
+
+    if (RifleRapidFireAddr != NULL ) {
+        al.rapidFire = true;
+    }
+
+    if (EnvHealthDecAddr != NULL
+        && PlrHealthDecAddr != NULL)
     {
         al.god = true;
     }
 
     if (
-       DecGrenadeAddr != NULL && DecGrenadeAddr < MAXSEARCHADDR &&
-       DecC4Addr != NULL && DecC4Addr < MAXSEARCHADDR &&
-       DecPrimarySmgAmmoAddr != NULL && DecPrimarySmgAmmoAddr < MAXSEARCHADDR &&
-       DecPistolAmmoAddr != NULL && DecPistolAmmoAddr < MAXSEARCHADDR &&
-       DecPrimaryRifleAmmoAddr != NULL && DecPrimaryRifleAmmoAddr < MAXSEARCHADDR)
+       DecGrenadeAddr != NULL &&
+       DecC4Addr != NULL  &&
+       DecPrimarySmgAmmoAddr != NULL  &&
+       DecPistolAmmoAddr != NULL &&
+       DecPrimaryRifleAmmoAddr != NULL)
     {
         al.infAmmo = true; 
     }
 
-    if (DecPrimaryWeldingTorchAddr != NULL && DecPrimaryWeldingTorchAddr < MAXSEARCHADDR &&
-        DecMedKitAddr != NULL && DecMedKitAddr < MAXSEARCHADDR &&
-        DecFlashlightAddr != NULL && DecFlashlightAddr < MAXSEARCHADDR &&
-        DecPrimaryFireExtAddr != NULL && DecPrimaryFireExtAddr < MAXSEARCHADDR &&
-        DecFlareAddr != NULL && DecFlareAddr < MAXSEARCHADDR &&
-        DecFlaregunAddr != NULL && DecFlaregunAddr < MAXSEARCHADDR)
+    if (DecPrimaryWeldingTorchAddr != NULL &&
+        DecMedKitAddr != NULL  &&
+        DecFlashlightAddr != NULL  &&
+        DecPrimaryFireExtAddr != NULL  &&
+        DecFlareAddr != NULL && 
+        DecFlaregunAddr != NULL)
     {
         al.infUtil = true;
     }
@@ -193,8 +218,8 @@ void ProcessCommand(std::string cmd)
     //auto loadout
     if (command[0] == "al")
     {
-        //std::cout << actionUnavailableStr; //need to fix this
-        //return;
+        std::cout << actionUnavailableStr; //need to fix this
+        return;
 
         if (verifyPlrObjAddress())
         {
@@ -274,8 +299,8 @@ void ProcessCommand(std::string cmd)
 
     if (command[0] == "ps") { //player scanner
         if (!verifyPlrObjAddress()) {
+            printf("%sStarting player object scanner\n", prefix.c_str());
             getPlayerObjWhenAvailable();
-            printf("%sStarted player object scanner\n",prefix.c_str());
         }
         else {
             printf("%sPlayer object has already been found, if this is not true, use \"flushplr\" command.\n",prefix.c_str());
@@ -568,14 +593,61 @@ void ProcessCommand(std::string cmd)
 
 
  
-    //test command
+    //test command 
     if (command[0] == "dbg") {
-        //float f = 100.0f;
-        //int i = *(reinterpret_cast<int*>(&f));
-        //printf("%s%08x\n",prefix.c_str(), i);
+
         return;
     }
 
+    if (command[0] == "projid") {
+        if (!al.projID) {
+            printf("%s", actionUnavailableStr.c_str());
+            return;
+        }
+        if (command[1].empty() || stoi(command[1]) < 1) {
+            printf("%s", invalidArgumentStr.c_str());
+            return;
+        }
+        ml.projidchanged = true;
+        changeProjId(stoi(command[1]));
+        printf("%sUpdated rifle projectile id.\n",prefix.c_str());
+        return;
+    }
+
+
+    if (command[0] == "ns" || command[0] == "nospread") {
+        if (!al.noSpread) {
+            printf("%s",actionUnavailableStr.c_str());
+            return;
+        }
+        if (!ml.noSpread) {
+            EnableNoSpread();
+            printf("%s",enableNoSpreadStr.c_str());
+        }
+        else {
+            DisableNoSpread();
+            printf("%s", disableNoSpreadStr.c_str());
+        }
+        ml.noSpread = !ml.noSpread;
+        return;
+    }
+
+    if (command[0] == "rf" || command[0] == "rapidfire") {
+        if (!al.rapidFire) {
+            printf("%s", actionUnavailableStr.c_str());
+            return;
+        }
+        if (!ml.rapidFire) {
+            EnableRapidFire();
+            printf("%s", enableRapidFireStr.c_str());
+        }
+        else {
+            DisableRapidFire();
+            printf("%s", disableRapidFireStr.c_str());
+        }
+        ml.rapidFire = !ml.rapidFire;
+        return;
+    }
 
     if (command[0] == "vd")
     {
@@ -592,13 +664,13 @@ void ProcessCommand(std::string cmd)
         return;
     }
 
-    //smg 
-    if (command[0] == "smg")
+    //rifle
+    if (command[0] == "rifle")
     {
         if (verifyPlrObjAddress())
         {
             char* PrimaryItemslotAddr = (char*)PlrObjAddr + 0x268;
-            GiveItem(0,SWITEM::smgID,0,40);
+            GiveItem(0,SWITEM::rifleID,0,30);
         }
         else
         {
@@ -654,6 +726,10 @@ void cleanup()
         return;
     }
     std::cout << "\n";
+    
+    if (ml.projidchanged) {
+        changeProjId(5);
+    }
     if (ml.god) 
     {
         std::cout << disableGodmodeStr;
@@ -661,19 +737,28 @@ void cleanup()
         PatchEX(hProcess, EnvHealthDecAddr, healthDecInstruction, 8);
         PatchEX(hProcess, PlrHealthDecAddr, healthDecInstruction, 8);
     }
+    if (ml.noSpread) {
+        DisableNoSpread();
+        printf("%s",disableNoSpreadStr.c_str());
+    }
+    if (ml.rapidFire) {
+        DisableRapidFire();
+        printf("%s", disableRapidFireStr.c_str());
+    }
     if (ml.infAmmo)
     {
-        std::cout << disableInfammoStr;
         DisableInfAmmo();
+        printf("%s", disableInfammoStr.c_str());
     }
     if (ml.infUtil)
     {
-        std::cout << disableInfutilStr;
         DisableInfUtil();
+        printf("%s", disableInfutilStr.c_str());
     }
     if (bActionThread)
     {
         bActionThread = false;
+        printf("%sShutting down action thread.\n",prefix.c_str());
         Sleep(1000);
     }
     CloseHandle(hProcess);
@@ -708,6 +793,27 @@ void EnableInfAmmo()
     NopEX(hProcess, DecC4Addr, 4);
     NopEX(hProcess, DecGrenadeAddr, 4);
 }
+
+void EnableRapidFire() {
+    int i = 0;
+    PatchEX(hProcess, RifleRapidFireAddr, reinterpret_cast<int*>(&i), 4);
+}
+
+void DisableRapidFire() {
+    int i = 7;
+    PatchEX(hProcess, RifleRapidFireAddr, reinterpret_cast<int*>(&i), 4);
+}
+
+void EnableNoSpread() {
+    void* patch = (void*)"\x69\xC1\x00\x00\x00\x00";
+    PatchEX(hProcess, RifleNoSpreadAddr, patch, 6);
+}
+
+void DisableNoSpread() {
+    void* patch = (void*)"\x69\xC1\xFD\x43\x03\x00";
+    PatchEX(hProcess, RifleNoSpreadAddr, patch, 6);
+}
+
 
 void DisableInfAmmo()
 {
@@ -773,25 +879,25 @@ void ActionThread()
         //auto loadout
         if (ml.autoLoadout)
         {
-            health = ProtectedFloatRead(hProcess, (char*)PlrObjAddr + 0x3C4, 4);
-            std::cout << health << "\n";
-            if (health == (void*)0xFFFFFFFF)
-            {
-                std::cout << invalidPlrObjStr + prefix;
-                ml.autoLoadout = false;
-                continue;
-            }
-
-            if (health == 0 && hasDied == false) {
-                hasDied = true;
-                std::cout << ">> Detected local player death\n";
-            }
-            if (hasDied && health == (FLOAT*)0x42C80000)
-            {
-                std::cout << ">> Detected local player respawn\n";
-                hasDied = false;
-                giveLoadout();
-            }
+            //health = ProtectedFloatRead(hProcess, (char*)PlrObjAddr + 0x3C4, 4);
+            //std::cout << health << "\n";
+            //if (health == (void*)0xFFFFFFFF)
+            //{
+            //    std::cout << invalidPlrObjStr + prefix;
+            //   ml.autoLoadout = false;
+            //    continue;
+            //}
+            //
+            //if (health == 0 && hasDied == false) {
+            //    hasDied = true;
+            //    std::cout << ">> Detected local player death\n";
+            //}
+            //if (hasDied && health == (FLOAT*)0x42C80000)
+            //{
+            //    std::cout << ">> Detected local player respawn\n";
+            //    hasDied = false;
+            //    giveLoadout();
+            //}
         }
         //vehicle damage
         if (ml.vehDamage) 
@@ -870,6 +976,9 @@ void setAmmo(UINT itemSlot, int ammo)
         PatchEX(hProcess, ammoAddr, reinterpret_cast<int*>(&ammo), 4);
 }
 
+void changeProjId(UINT projID) {
+    PatchEX(hProcess, RifleProjIDAddr, reinterpret_cast<int*>(&projID), 4);
+}
 
 
 void giveLoadout()
@@ -944,7 +1053,7 @@ void waitForPlrObj() {
 
 BYTE* tryGetPlrObj() {
     uintptr_t plrPtrChainBase = (uintptr_t)Module.modBaseAddr + 0xBEBC68;
-    return (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x2F0, 0x140, 0x270, 0x50, 0x48, 0x370, 0x0 });
+    return (BYTE*)FindDMAAddy(hProcess, plrPtrChainBase, { 0x1F0, 0x20, 0x270, 0x50, 0x48, 0x370, 0x0 });
 }
 
 bool verifyPlrObjAddress()
