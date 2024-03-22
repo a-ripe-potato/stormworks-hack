@@ -1,8 +1,9 @@
 #pragma once
 #include "string"
 
+
 const static std::string prefix = ">> ";
-const static std::string MODVERSION = "Version: 1.1.4 (game version: v1.9.24)\n";
+const static std::string MODVERSION = "Version: 1.1.6 (game version: v1.10.7)\n";
 const static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 const static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 const static std::string foundPattern = prefix + "Found pattern: ";
@@ -46,13 +47,19 @@ const static std::string enableNoSpreadStr = prefix + "No spread enabled.\n";
 const static std::string disableNoSpreadStr = prefix + "No spread disabled.\n";
 const static std::string enableRapidFireStr = prefix + "Rapid fire enabled.\n";
 const static std::string disableRapidFireStr = prefix + "Rapid fire disabled.\n";
+const static std::string enableInfFlashlightStr = prefix + "Inf flashlight enabled.\n";
+const static std::string disableInfFlashlightStr = prefix + "Inf flashlight disabled.\n";
+const static std::string authWorkbenchStr = prefix + "Authed!\n";
+const static std::string deauthWorkbenchStr = prefix + "Deauthed!\n";
 
 
 void printHelpMessage();
 
 //TODO: short term
-// fix auto loadout
+// new help menu, add usage
+// revise code
+// enhance cmd line with more humanized commands. ex. give rifle primary 0 100
 // -------------------------------------------------------------------------------------------------
 //TODO: long term
-// force workbench
-// find chat func
+// fix auto loadout
+//external gui

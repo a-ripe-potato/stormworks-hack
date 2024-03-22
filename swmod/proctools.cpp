@@ -1,7 +1,4 @@
-#include <iostream>
 #include "proctools.h"
-#include <windows.h>
-#pragma comment(lib, "advapi32.lib")
 
 
 DWORD getProcID(wchar_t * exeName)

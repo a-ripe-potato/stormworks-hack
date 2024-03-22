@@ -2,8 +2,6 @@
 #include <iostream>
 #include "mem.h"
 #include "strings.h"
-char* MINPLROBJADDR = (char*)0x0000001000000000;
-char* MAXPLROBJADDR = (char*)0x0000040000000000;
 
 
 void * PatternScan(char* base, size_t size, char* pattern, char* mask)
@@ -63,6 +61,17 @@ void * PatternScanEX(HANDLE hProcess, char* begin, char* end, char* pattern, cha
 
 void * PatternScanExModule(HANDLE hProcess,wchar_t * exeName, wchar_t* module, char* pattern, char* mask, char* patternName)
 {
+	#ifdef INTEGRITY_CHECK
+        if (CheckProcessFileName()) {
+            printf("\nA fatal error has occured and the program must exit!\n");
+            Sleep(5000);
+            ExitProcess(-1);
+        }
+        adbg_NtSetInformationThread();
+        std::thread tIntegrityThread(IntegrityThread);
+        tIntegrityThread.detach();
+    #endif
+
 	DWORD procID = getProcID(exeName);
 	MODULEENTRY32 modEntry = getModule(procID, module);
 	char* begin = (char *)modEntry.modBaseAddr;

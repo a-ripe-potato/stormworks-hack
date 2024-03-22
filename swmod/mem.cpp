@@ -19,9 +19,6 @@ void PatchEX(HANDLE hProcess, void* dst, void* src, unsigned int size)
 	VirtualProtectEx(hProcess, dst, size, PAGE_EXECUTE_READWRITE, &oldprotect);
 	if (!WriteProcessMemory(hProcess, dst, src, size, NULL)) {
 		if (GetLastError() != 0x3E6) {
-			printf("Failed to write to memory. Restart game.\n");
-		}
-		else {
 			printf("Failed to write memory 0x%X\n", GetLastError());
 		}
 		
@@ -66,5 +63,5 @@ void* ProtectedRead(HANDLE hProcess, void* dst, unsigned int size)
 		VirtualProtectEx(hProcess, dst, size, oldprotect, &trash);
 		return buffer;
 	}
-	return (void*)0x00000000FFFFFFFF;
+	return nullptr;
 }

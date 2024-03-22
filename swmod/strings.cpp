@@ -3,26 +3,24 @@
 #include <iostream>
 
 void printHelpMessage() {
-    std::cout << "--------------------------------------\n";
-    std::cout << "| command |  description  |   args   |\n";
-    std::cout << "|    ?    |   help page   |          |\n";
-    std::cout << "|    g    |    god mode   |          |\n";
-    std::cout << "|    x    |     exit      |          |\n";
-    std::cout << "|    i    |      inf      | a,u,e,f  |\n";
-    std::cout << "|   am    |   admin menu  |          |\n";
-    std::cout << "|   nc    |    no clip    |          |\n";
-    std::cout << "|   vd    |   veh damage  |          |\n";
-    std::cout << "|  sp,mp  | show map plrs |          |\n";
-    std::cout << "|  heal   |   heals plr   |          |\n";
-    std::cout << "|  kill   |   kills plr   |          |\n";
-    std::cout << "|  reload |reloads weapons|          |\n";
-    std::cout << "|  give   |  gives items  |          |\n";
-    std::cout << "|   rf    |  rapid  fire  |rifle only|\n";
-    std::cout << "|   ns    |   no spread   |rifle only|\n";
-    std::cout << "| projid  |  change proj  |rifle only|\n";
-    std::cout << "|   fix   |  fixes items  |          |\n";
-    std::cout << "|  rifle  |  gives rifle  |          |\n";
-    std::cout << "|   loa   |    loadout    |          |\n";
-    //std::cout << "|   al    |  auto loadout |          |\n";
-    std::cout << "--------------------------------------\n";
+    std::cout << "--------------------------------------------------------------------------\n";
+    std::cout << "| command |    description         |    usage <required> (optional)      |\n";
+    std::cout << "|    ?    |     help page          |             ?                       |\n";
+    std::cout << "|    g    |      god mode          |             g                       |\n";
+    std::cout << "|    x    |       exit             |             x                       |\n";
+    std::cout << "|   ia    |      inf ammo          |             ia                      |\n";
+    std::cout << "|   am    |     admin menu         |             am                      |\n";
+    std::cout << "|   nc    |      no clip           |             nc                      |\n";
+    std::cout << "|  sp,mp  |   show map plrs        |             sp                      |\n";
+    std::cout << "|  heal   |     heals plr          |             heal                    |\n";
+    std::cout << "|  kill   |     kills plr          |             kill                    |\n";
+    std::cout << "|  reload |  reloads weapon        |           reload (slot)             |\n";
+    std::cout << "|  give   |    gives items         |give <itemid> <slot> (charge) (ammo) |\n";
+    std::cout << "|   rf    |    rapid  fire         |               rf                    |\n";
+    std::cout << "| projid  | change proj(rifle)     |       projid <projectile id>        |\n";
+    std::cout << "|  sip    | set invalid projectile |             sip                     |\n";
+    std::cout << "|  fix    |  fixes items           |             fix <slot>              |\n";
+    std::cout << "|  rifle  |  gives rifle           |             rifle                   |\n";
+
+    std::cout << "--------------------------------------------------------------------------\n";
 }
