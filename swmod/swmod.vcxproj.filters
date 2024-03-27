@@ -39,6 +39,9 @@
     <ClCompile Include="antidebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ntp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="proctools.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="antidbg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

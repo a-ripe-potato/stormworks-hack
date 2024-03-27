@@ -11,6 +11,7 @@ void printHelpMessage() {
     std::cout << "|   ia    |      inf ammo          |             ia                      |\n";
     std::cout << "|   am    |     admin menu         |             am                      |\n";
     std::cout << "|   nc    |      no clip           |             nc                      |\n";
+    std::cout << "|   vs    |   vehicle spawning     |             vs                      |\n";
     std::cout << "|  sp,mp  |   show map plrs        |             sp                      |\n";
     std::cout << "|  heal   |     heals plr          |             heal                    |\n";
     std::cout << "|  kill   |     kills plr          |             kill                    |\n";
@@ -21,6 +22,10 @@ void printHelpMessage() {
     std::cout << "|  sip    | set invalid projectile |             sip                     |\n";
     std::cout << "|  fix    |  fixes items           |             fix <slot>              |\n";
     std::cout << "|  rifle  |  gives rifle           |             rifle                   |\n";
-
+    std::cout << "|  torch  |  gives welding torch   |             torch                   |\n";
+    std::cout << "|  auth   |  authorizes you        |             auth                    |\n";
     std::cout << "--------------------------------------------------------------------------\n";
 }
+
+
+

@@ -128,7 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <Optimization>MaxSpeed</Optimization>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +146,7 @@
     <ClCompile Include="injector.cpp" />
     <ClCompile Include="mem.cpp" />
     <ClCompile Include="mods.cpp" />
+    <ClCompile Include="ntp.cpp" />
     <ClCompile Include="patternscan.cpp" />
     <ClCompile Include="proctools.cpp" />
     <ClCompile Include="strings.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="items.h" />
     <ClInclude Include="mem.h" />
     <ClInclude Include="mods.h" />
+    <ClInclude Include="ntp.h" />
     <ClInclude Include="patternscan.h" />
     <ClInclude Include="proctools.h" />
     <ClInclude Include="strings.h" />

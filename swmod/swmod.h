@@ -19,7 +19,7 @@
 #include "buildtime.h"
 #include "mods.h"
 #include "antidbg.h"
-
+#include "ntp.h"
 
 
 void readyCmdLine();
@@ -34,6 +34,7 @@ struct addresses {
 	BYTE* LockSettAddr;
 	BYTE* ConfigLockAddr;
 	BYTE* MapTpAddr;
+	BYTE* VehLockAddr;
 	//BYTE* VehDamageAddr;
 	BYTE* MapPlayersAddr;
 	BYTE* InfElecAddr;
@@ -82,6 +83,7 @@ struct modList {
 	bool autoLoadout = false;
 	bool forceNoClip = false;
 	bool forceAdminMenu = false;
+	bool forceVehicleSpawning = false;
 	//bool vehDamage = false;
 	bool mapPlrs = false;
 	bool noSpread = false;

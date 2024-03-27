@@ -2,6 +2,7 @@
 #include "swmod.h"
 
 
+
 #define PS_IDLE_SCANS 100
 struct allowList al;
 struct modList ml;
@@ -19,8 +20,9 @@ const int build_time = __DATE_TIME_UNIX__ + 21600;
 wchar_t* dllPath = (wchar_t*)L"C:\\swmodV2.dll";
 //wchar_t* dllPath = (wchar_t*)L"C:\\Users\\joe\\source\\repos\\swmodV2\\x64\\Release\\swmodV2.dll";
 
-#define DEBUG
-#define INTEGRITY_CHECK
+//#define DEBUG
+//#define INTEGRITY_CHECK
+//#define OFFLINE
 #define EXPIRE
 
 BOOL WINAPI HandlerRoutine(
@@ -81,7 +83,7 @@ int main()
         else {
             addr.PlrSlotAddr = (char*)addr.PlrObjAddr + 0x240;
         }
-        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBEA902;
+        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBEB962;
         addr.ConfigLockAddr = (BYTE*)addr.LockSettAddr - 0x28;
         addr.InfElecAddr = (BYTE*)addr.LockSettAddr + 0x1;
         addr.InfFuelAddr = (BYTE*)addr.LockSettAddr + 0x2;
@@ -89,6 +91,7 @@ int main()
         addr.InfAmmoAddr = (BYTE*)addr.LockSettAddr + 0x5;
         addr.NoClipAddr = (BYTE*)addr.LockSettAddr + 0x6;
         addr.MapTpAddr = (BYTE*)addr.LockSettAddr + 0x7;
+        addr.VehLockAddr = (BYTE*)addr.LockSettAddr + 0x8;
         addr.VehCleanAddr = (BYTE*)addr.LockSettAddr + 0xB;
         //addr.VehDamageAddr = (BYTE*)addr.LockSettAddr + 0x18;
         addr.VehTpAddr = (BYTE*)addr.LockSettAddr + 0x1E;
@@ -440,35 +443,6 @@ void ProcessCommand(std::string cmd)
 
                     }
                 }
-                //infinite electricity
-                if (cmd[i] == 'e')
-                {
-                    if (!ml.infElec) {
-                        ml.infElec = true;
-                        StartActionThread();
-                        std::cout << enableInfElecStr;
-
-                    }
-                    else {
-                        std::cout << disableInfElecStr;
-                        ml.infElec = false;
-                    }
-                }
-                //infinite fuel
-                if (cmd[i] == 'f')
-                {
-                    if (!ml.infFuel) {
-                        ml.infFuel = true;
-                        StartActionThread();
-                        std::cout << enableInfFuelStr;
-
-                    }
-                    else {
-                        std::cout << disableInfFuelStr;
-                        ml.infFuel = false;
-                    }
-                }
-            
         }
         return;
     }
@@ -733,7 +707,7 @@ void ProcessCommand(std::string cmd)
         return;
     }
 
-    if (command[0] == "getslot" || command[0] == "qslot") {
+    if (command[0] == "getslot" || command[0] == "getitem" || command[0] == "qslot") {
         UINT pos = 0;
         if (stoi(command[1]) >= 0 && stoi(command[1]) < 10) {
             pos = stoi(command[1]);
@@ -744,7 +718,6 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "projid") {
-        uint16_t projectile = 5;
         if (!al.projID) {
             printf("%s", actionUnavailableStr.c_str());
             return;
@@ -755,27 +728,28 @@ void ProcessCommand(std::string cmd)
             ml.projidchanged = false;
             return;
         }
+        if (command[1] == "b" || command[1] == "bertha") {
+            ml.projidchanged = true;
+            changeProjId(14, addr.RifleProjIDAddr);
+            printf(updateRifleProjidStr.c_str());
+            return;
+        }
         if (command[1].empty() || stoi(command[1]) < 1) {
             printf(invalidArgumentStr.c_str());
             return;
         }
-        if (command[1] == "b" || command[1] == "bertha") {
-            projectile = 14;
-        }
-        else {
-            projectile = stoi(command[1]);
-        }
+
         
         #ifndef DEBUG
-            if (projectile) > 15) {
+            if (stoi(command[1]) > 15) {
                 printf(invalidArgumentStr.c_str());
                 return;
             }
         #endif 
 
         ml.projidchanged = true;
-        changeProjId(projectile, addr.RifleProjIDAddr);
-        printf("%sUpdated rifle projectile id.\n",prefix.c_str());
+        changeProjId(stoi(command[1]), addr.RifleProjIDAddr);
+        printf(updateRifleProjidStr.c_str());
         return;
     }
 
@@ -833,6 +807,29 @@ void ProcessCommand(std::string cmd)
             getPlayerObjWhenAvailable();
         }
         GiveItem(hProcess, 0, SWITEM::rifleID, 0, 30);
+        return;
+    }
+    //torch
+    if (command[0] == "torch")
+    {
+        al.playerobj = verifyPlrObjAddress();
+        char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
+        if (!al.playerobj)
+        {
+            std::cout << invalidPlrObjStr;
+            getPlayerObjWhenAvailable();
+        }
+        GiveItem(hProcess, 0, SWITEM::welding_torchID, 400, 0);
+        return;
+    }
+    //vehicle spawning
+    if (command[0] == "vs" || command[0] == "vehiclespawning") {
+        ml.forceVehicleSpawning = !ml.forceVehicleSpawning;
+        if (ml.forceVehicleSpawning) {
+            printf(enableVehSpawningStr.c_str());
+        }else{
+            printf(disableVehSpawningStr.c_str());
+        }
         return;
     }
     
@@ -1005,6 +1002,9 @@ void ActionThread()
             PatchEX(hProcess, addr.NoClipAddr, (BYTE*)"\x01", 1);
             PatchEX(hProcess, addr.MapTpAddr, (BYTE*)"\x01", 1);
         }
+        if (ml.forceVehicleSpawning) {
+            PatchEX(hProcess, addr.VehLockAddr, (BYTE*)"\x01", 1); //VehLock
+        }
         //Force admin menu
         if (ml.forceAdminMenu) {
             PatchEX(hProcess, addr.VehTpAddr, (BYTE*)"\x01", 1); //VehTp
@@ -1018,7 +1018,7 @@ void ActionThread()
         }
 
         if (!ml.forceNoClip && !ml.forceAdminMenu && !ml.autoLoadout && !ml.mapPlrs &&
-            !ml.infElec && !ml.infFuel &&
+            !ml.infElec && !ml.infFuel && !ml.forceVehicleSpawning &&
             !ml.infAmmoG && !bKeepActive && !ml.infAmmo)
         {
             bActionThread = false;
@@ -1083,11 +1083,22 @@ bool isExpired() {
             }
         }
     #endif
-    time_t current_time = time(NULL);
-    //printf("Time: %lld\n", current_time);
-    static const int expire_after = build_time + 60 * 60 * 24 * 7; // 1 day
+
+    #ifdef OFFLINE
+        time_t current_time = time(NULL);
+    #else
+        time_t current_time = getNTPTime();
+    #endif
+
+        
+    #ifdef DEBUG
+        printf("local Time: %lld\n", current_time);
+    #endif 
+
+    //
+    static const int expire_after = build_time + 60 * 60 * 24 * 7; // 7 days
     //static const int expire_after = build_time + 60 * 10;
-    return current_time >= expire_after;
+    return current_time >= expire_after && current_time != NULL;
 }
 
 MODULEENTRY32 getSWModule() {

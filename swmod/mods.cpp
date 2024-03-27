@@ -34,7 +34,7 @@ uint16_t GetItem(HANDLE hProcess, DWORD itemSlot)
     DWORD* plrAddr = (DWORD*)getPlayerObjAddr();
     DWORD* slotAddr = plrAddr + 0x95 + 7 * itemSlot;
     DWORD* itemAddr = slotAddr + 5;
-    return (uintptr_t)ProtectedRead(hProcess,itemAddr,4);
+    return (uint16_t)(uintptr_t)ProtectedRead(hProcess,itemAddr,4);
 
     //std::cout << ">> Item given!" << "\n";
 
@@ -52,12 +52,12 @@ bool verifyPlrObjAddress()
 }
 
 BYTE* tryGetPlrObj() {
-    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xBFE6F8;
+    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xBFF768;
     return (BYTE*)FindDMAAddy(gethProcess(), plrPtrChainBase, { 0x1F0, 0x20, 0x270, 0x50, 0x48, 0x370, 0x0 });
 }
 
 BYTE* tryGetWorkbenchLock() {
-    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xBFE6F8;
+    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xBFF768;
     return (BYTE*)FindDMAAddy(gethProcess(), plrPtrChainBase, {0x370, 0x20, 0x258, 0x8, 0xE60, 0x368, 0x0}) + 0xA3;
 }
 
