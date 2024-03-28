@@ -826,6 +826,7 @@ void ProcessCommand(std::string cmd)
     if (command[0] == "vs" || command[0] == "vehiclespawning") {
         ml.forceVehicleSpawning = !ml.forceVehicleSpawning;
         if (ml.forceVehicleSpawning) {
+            StartActionThread();
             printf(enableVehSpawningStr.c_str());
         }else{
             printf(disableVehSpawningStr.c_str());

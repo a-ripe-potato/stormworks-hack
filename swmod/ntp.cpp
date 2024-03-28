@@ -8,7 +8,7 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define NTP_SERVER "216.239.35.4"  // IP address of time.google.com
+#define NTP_SERVER "216.239.35.8"  // IP address of time.google.com
 #define NTP_PORT 123
 #define NTP_PACKET_SIZE 48
 #define NTP_TIMESTAMP_DELTA 2208988800ull
