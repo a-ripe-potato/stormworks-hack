@@ -1,5 +1,7 @@
 #include "antidbg.h"
 
+#define IGNORE_CHEAT_ENGINE
+
 bool checkDebugger() { //returns true if a debugger is present.
     //corrupt breakpoints
 
@@ -35,8 +37,6 @@ bool checkDebugger() { //returns true if a debugger is present.
     //printf("\nIntegrity check complete: A:%b,B:%b,C:%b,D:%b,E:%b,F:%b,G:%b\n",bDebuggerCheckA, bDebuggerCheckB, bDebuggerCheckC, bDebuggerCheckD, bDebuggerCheckE, bDebuggerCheckF, bDebuggerCheckG);
     return bDebuggerCheckA || bDebuggerCheckB || bDebuggerCheckC || bDebuggerCheckD || bDebuggerCheckE || bDebuggerCheckF || bDebuggerCheckG || bDebuggerCheckH || bDebuggerCheckI;
 }
-
-
 
 inline bool CheckRemoteDebuggerPresent()
 {
@@ -239,6 +239,17 @@ inline bool CheckProcessFileName()
 #endif
     bool found = false;
     // detect debugger by process file (for example: ollydbg.exe)
+    #ifdef IGNORE_CHEAT_ENGINE
+    const wchar_t* debuggersFilename[7] = {
+        L"ollydbg.exe",
+        L"ida.exe",
+        L"ida64.exe",
+        L"radare2.exe",
+        L"x64dbg.exe",
+        L"EngHost.exe",
+        L"DbgX.Shell.exe"
+    };
+    #else
     const wchar_t* debuggersFilename[9] = {
         L"cheatengine-x86_64.exe",
         L"ollydbg.exe",
@@ -249,7 +260,10 @@ inline bool CheckProcessFileName()
         L"cheatengine-x86_64-SSE4-AVX2.exe",
         L"EngHost.exe",
         L"DbgX.Shell.exe"
-    };
+};
+    #endif // DEBUG
+
+    
 
     wchar_t* processName;
     PROCESSENTRY32W processInformation{ sizeof(PROCESSENTRY32W) };
@@ -338,3 +352,5 @@ void adbg_NtSetInformationThread()
     // There is nothing to check here after this call.
     NtSetInformationThread(GetCurrentThread(), ThreadHideFromDebugger, 0, 0);
 }
+
+

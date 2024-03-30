@@ -3,7 +3,7 @@
 
 
 const static std::string prefix = ">> ";
-const static std::string MODVERSION = "Version: 1.1.7 (game version: v1.10.8)\n";
+const static std::string MODVERSION = "Version: 1.1.8 (game version: v1.10.8)\n";
 const static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 const static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 const static std::string foundPattern = prefix + "Found pattern: ";
@@ -60,9 +60,14 @@ void printHelpMessage();
 
 //TODO: short term
 // 
-// 
+// huminize give command
 // -------------------------------------------------------------------------------------------------
 //TODO: long term
 // fix auto loadout
 //external gui
 //enhance cmd line with more humanized commands.ex.give rifle primary 0 100
+//-------------------------------------------------------------------------------------------------
+//FINISHED:
+//
+//
+//

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
+#include "swmod.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -17,7 +18,7 @@ time_t getNTPTime() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         std::cerr << "WSAStartup failed" << std::endl;
-        exit(EXIT_FAILURE);
+        cleanup();
     }
 
     SOCKET sockfd;
@@ -28,7 +29,7 @@ time_t getNTPTime() {
     if (sockfd == INVALID_SOCKET) {
         std::cerr << "Error creating socket" << std::endl;
         WSACleanup();
-        exit(EXIT_FAILURE);
+        cleanup();
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -39,7 +40,7 @@ time_t getNTPTime() {
         std::cerr << "Invalid address" << std::endl;
         closesocket(sockfd);
         WSACleanup();
-        exit(EXIT_FAILURE);
+        cleanup();
     }
 
     // Set the first byte of the buffer to the NTP request mode
@@ -50,7 +51,7 @@ time_t getNTPTime() {
         std::cerr << "Error sending request" << std::endl;
         closesocket(sockfd);
         WSACleanup();
-        exit(EXIT_FAILURE);
+        cleanup();
     }
 
     // Receive the NTP response
@@ -59,7 +60,7 @@ time_t getNTPTime() {
         std::cerr << "Error receiving response" << std::endl;
         closesocket(sockfd);
         WSACleanup();
-        exit(EXIT_FAILURE);
+        cleanup();
     }
 
     closesocket(sockfd);

@@ -1,5 +1,6 @@
 #pragma once
 #include "swmod.h"
+#include "commands.h"
 
 
 
@@ -21,7 +22,7 @@ wchar_t* dllPath = (wchar_t*)L"C:\\swmodV2.dll";
 //wchar_t* dllPath = (wchar_t*)L"C:\\Users\\joe\\source\\repos\\swmodV2\\x64\\Release\\swmodV2.dll";
 
 //#define DEBUG
-//#define INTEGRITY_CHECK
+#define INTEGRITY_CHECK
 //#define OFFLINE
 #define EXPIRE
 
@@ -44,7 +45,7 @@ int main()
 {
     
     SetConsoleTitleW(L"Silly Stormworks Mod");
-    printf("Build ID: %d", build_time);
+    printf("Build ID: %d", build_time - 0x420);
 
     #ifdef INTEGRITY_CHECK
         printf("-S");
@@ -312,27 +313,33 @@ void ProcessCommand(std::string cmd)
 
     if (command[0] == "heal") {
         al.playerobj = verifyPlrObjAddress();
-        if (al.playerobj) {
-            PatchEX(hProcess, (BYTE*)addr.PlrObjAddr + 0x3C4, (void*)"\x00\x00\xC8\x42", 4);
-            printf("%sPlayer healed!\n",prefix.c_str());
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
-        else {
-            getPlayerObjWhenAvailable();
-            printf("%s\n", actionUnavailableStr.c_str());
-        }
+        PatchEX(hProcess, (BYTE*)addr.PlrObjAddr + 0x3C4, (void*)"\x00\x00\xC8\x42", 4);
+        printf("%sPlayer healed!\n", prefix.c_str());
         return;
     }
 
     if (command[0] == "die" || command[0] == "kill") {
         al.playerobj = verifyPlrObjAddress();
-        if (al.playerobj) {
-            PatchEX(hProcess, (BYTE*)addr.PlrObjAddr + 0x3C4, (void*)"\x00\x00\x00\x00", 4);
-            printf("%sPlayer killed!\n",prefix.c_str());
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
-        else {
-            getPlayerObjWhenAvailable();
-            printf("%s\n", actionUnavailableStr.c_str());
-        }
+        PatchEX(hProcess, (BYTE*)addr.PlrObjAddr + 0x3C4, (void*)"\x00\x00\x00\x00", 4);
+        printf("%sPlayer killed!\n", prefix.c_str());
         return;
     }
 
@@ -461,7 +468,7 @@ void ProcessCommand(std::string cmd)
         return;
     }
     
-    if (command[0] == "dll") {
+    /*if (command[0] == "dll") {
         if (GetFileAttributes(dllPath) == INVALID_FILE_ATTRIBUTES) {
             printf("%sDll file doesn't exist\n",prefix.c_str());
             return;
@@ -502,7 +509,7 @@ void ProcessCommand(std::string cmd)
         delete[] pSrcData;
         printf("%sdone!\n",prefix.c_str());
         return;
-    }
+    }*/
 
 
     //admin menu
@@ -596,8 +603,14 @@ void ProcessCommand(std::string cmd)
     //give command
     if (command[0] == "give") {
         al.playerobj = verifyPlrObjAddress();
-        if (!al.playerobj) {
-            getPlayerObjWhenAvailable();
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         if (command[1].empty() || command[2].empty()) {
             printf("%s\n",invalidArgumentStr.c_str());
@@ -633,10 +646,14 @@ void ProcessCommand(std::string cmd)
     if (command[0] == "flash" || command[0] == "flashlight")
     {
         al.playerobj = verifyPlrObjAddress();
-        if (!al.playerobj) {
-            getPlayerObjWhenAvailable();
-            printf("%sPlease try again\n", prefix.c_str());
-            return;
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         
         UINT arg = 1;
@@ -659,10 +676,14 @@ void ProcessCommand(std::string cmd)
     if (command[0] == "reload" || command[0] == "rl")
     {
         al.playerobj = verifyPlrObjAddress();
-        if (!al.playerobj) {
-            getPlayerObjWhenAvailable();
-            printf("%sPlease try again\n", prefix.c_str());
-            return;
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         UINT arg = 0;
         if (!command[1].empty()) {
@@ -681,8 +702,14 @@ void ProcessCommand(std::string cmd)
     if (command[0] == "fix" || command[0] == "fx")
     {
         al.playerobj = verifyPlrObjAddress();
-        if (!al.playerobj) {
-            getPlayerObjWhenAvailable();
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         UINT arg = 0;
         if (!command[1].empty()) {
@@ -708,6 +735,16 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "getslot" || command[0] == "getitem" || command[0] == "qslot") {
+        al.playerobj = verifyPlrObjAddress();
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
+        }
         UINT pos = 0;
         if (stoi(command[1]) >= 0 && stoi(command[1]) < 10) {
             pos = stoi(command[1]);
@@ -718,9 +755,14 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "projid") {
-        if (!al.projID) {
-            printf("%s", actionUnavailableStr.c_str());
-            return;
+        if (!al.playerobj)
+        {
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         if (command[1] == "reset" || command[1] == "r") {
             changeProjId(5, addr.RifleProjIDAddr);
@@ -803,10 +845,15 @@ void ProcessCommand(std::string cmd)
         char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
         if (!al.playerobj)
         {
-            std::cout << invalidPlrObjStr;
-            getPlayerObjWhenAvailable();
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         GiveItem(hProcess, 0, SWITEM::rifleID, 0, 30);
+        printf("%sRifle given!\n", prefix.c_str());
         return;
     }
     //torch
@@ -816,8 +863,12 @@ void ProcessCommand(std::string cmd)
         char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
         if (!al.playerobj)
         {
-            std::cout << invalidPlrObjStr;
-            getPlayerObjWhenAvailable();
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
         GiveItem(hProcess, 0, SWITEM::welding_torchID, 400, 0);
         return;
@@ -834,19 +885,20 @@ void ProcessCommand(std::string cmd)
         return;
     }
     
-    if (command[0] == "gre")
+    if (command[0] == "grenade")
     {
         al.playerobj = verifyPlrObjAddress();
-        if (al.playerobj)
+        if (!al.playerobj)
         {
-            char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
-            GiveItem(hProcess, 3, SWITEM::grenadeID, 0, 1);
+            addr.PlrObjAddr = tryGetPlrObj();
+            al.playerobj = verifyPlrObjAddress();
+            if (!al.playerobj) {
+                std::cout << invalidPlrObjStr;
+                return;
+            }
         }
-        else
-        {
-            getPlayerObjWhenAvailable();
-            std::cout << invalidPlrObjStr;
-        }
+        char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
+        GiveItem(hProcess, 3, SWITEM::grenadeID, 0, 1);
         return;
     }
 
@@ -936,8 +988,12 @@ void StartActionThread()
 
 void IntegrityThread() {
     adbg_NtSetInformationThread();
+    const int build_copy = __DATE_TIME_UNIX__;
     while (true) {
         if (checkDebugger()) {
+            ExitProcess(-1);
+        }
+        if (build_copy + 21600 != build_time) {
             ExitProcess(-1);
         }
         Sleep(20000);
@@ -1073,7 +1129,7 @@ void splitString(std::string(&arr)[N], std::string str)
 
 bool isExpired() {
     #ifdef INTEGRITY_CHECK
-        PVOID pRetAddress = _ReturnAddress();
+        PVOID pRetAddress = _ReturnAddress();  
         if (*(PBYTE)pRetAddress == 0xCC) // int 3
         {
             DWORD dwOldProtect;
@@ -1122,6 +1178,21 @@ struct addresses getAddresses() {
     return addr;
 }
 
+struct allowList getAllowList() {
+	return al;
+}
+
+struct modList getModList() {
+	return ml;
+}
+
+struct cmd_flags getFlags() {
+	return flags;
+}
+
+bool isActionThreadRunning() {
+	return bActionThread;
+}
 
 
 

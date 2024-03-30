@@ -115,6 +115,8 @@ void getPlayerObjWhenAvailable();
 
 void waitForPlrObj();
 
+void ProcessCommand(std::string cmd);
+
 BYTE* tryGetPlrObj();
 
 

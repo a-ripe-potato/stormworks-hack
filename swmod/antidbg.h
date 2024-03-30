@@ -40,3 +40,4 @@ inline bool CheckProcessFileName();
 inline bool CheckCloseHandleException();
 
 void adbg_NtSetInformationThread();
+

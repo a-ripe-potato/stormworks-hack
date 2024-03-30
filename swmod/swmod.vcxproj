@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="antidebug.cpp" />
+    <ClCompile Include="commands.cpp" />
     <ClCompile Include="injector.cpp" />
     <ClCompile Include="mem.cpp" />
     <ClCompile Include="mods.cpp" />
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="antidbg.h" />
     <ClInclude Include="buildtime.h" />
+    <ClInclude Include="commands.h" />
     <ClInclude Include="injector.h" />
     <ClInclude Include="items.h" />
     <ClInclude Include="mem.h" />
