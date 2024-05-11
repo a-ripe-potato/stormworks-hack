@@ -1,10 +1,12 @@
 #pragma once
-#pragma intrinsic(_ReturnAddress)
-#include <windows.h> 
+
+#include <Windows.h> 
 #include <iostream>
 #include <TlHelp32.h>
 #include "WinBase.h"
 
+#include <intrin.h>
+#pragma intrinsic(_ReturnAddress)
 
 
 

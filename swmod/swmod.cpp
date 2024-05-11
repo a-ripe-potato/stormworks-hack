@@ -1,6 +1,6 @@
 #pragma once
 #include "swmod.h"
-#include "commands.h"
+#include "build_flags.h"
 
 
 
@@ -21,10 +21,7 @@ const int build_time = __DATE_TIME_UNIX__ + 21600;
 wchar_t* dllPath = (wchar_t*)L"C:\\swmodV2.dll";
 //wchar_t* dllPath = (wchar_t*)L"C:\\Users\\joe\\source\\repos\\swmodV2\\x64\\Release\\swmodV2.dll";
 
-//#define DEBUG
-#define INTEGRITY_CHECK
-//#define OFFLINE
-#define EXPIRE
+
 
 BOOL WINAPI HandlerRoutine(
     _In_ DWORD dwCtrlType) {
@@ -84,7 +81,7 @@ int main()
         else {
             addr.PlrSlotAddr = (char*)addr.PlrObjAddr + 0x240;
         }
-        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBEB962;
+        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBEB992;
         addr.ConfigLockAddr = (BYTE*)addr.LockSettAddr - 0x28;
         addr.InfElecAddr = (BYTE*)addr.LockSettAddr + 0x1;
         addr.InfFuelAddr = (BYTE*)addr.LockSettAddr + 0x2;

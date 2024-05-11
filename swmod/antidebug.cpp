@@ -1,6 +1,9 @@
 #include "antidbg.h"
+#include "build_flags.h"
 
-#define IGNORE_CHEAT_ENGINE
+
+
+
 
 bool checkDebugger() { //returns true if a debugger is present.
     //corrupt breakpoints

@@ -3,7 +3,7 @@
 
 
 const static std::string prefix = ">> ";
-const static std::string MODVERSION = "Version: 1.1.8 (game version: v1.10.8)\n";
+const static std::string MODVERSION = "Version: 1.1.9 (game version: v1.11.0)\n";
 const static std::string exeNotFound = prefix + "Failed to find stormworks!\n";
 const static std::string failedSetCH = prefix + "Failed to set control handler!\n";
 const static std::string foundPattern = prefix + "Found pattern: ";

@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="antidbg.h" />
     <ClInclude Include="buildtime.h" />
+    <ClInclude Include="build_flags.h" />
     <ClInclude Include="commands.h" />
     <ClInclude Include="injector.h" />
     <ClInclude Include="items.h" />
