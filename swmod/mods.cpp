@@ -52,12 +52,12 @@ bool verifyPlrObjAddress()
 }
 
 BYTE* tryGetPlrObj() {
-    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xC0C948;
+    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xC0EA88;
     return (BYTE*)FindDMAAddy(gethProcess(), plrPtrChainBase, { 0x1F0, 0x20, 0x270, 0x50, 0x48, 0x370, 0x0 });
 }
 
 BYTE* tryGetWorkbenchLock() {
-    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xC0C948;
+    uintptr_t plrPtrChainBase = (uintptr_t)getSWModule().modBaseAddr + 0xC0EA88;
     return (BYTE*)FindDMAAddy(gethProcess(), plrPtrChainBase, {0x370, 0x20, 0x258, 0x8, 0xE60, 0x368, 0x0}) + 0xA3;
 }
 

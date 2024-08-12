@@ -4,11 +4,13 @@
 
 
 
-#define PS_IDLE_SCANS 100
+//#define INTEGRITY_CHECK
+//#define EXPIRE
 struct allowList al;
 struct modList ml;
 struct cmd_flags flags;
 struct addresses addr; 
+constexpr struct CommandAllowList cal;
 MODULEENTRY32 Module;
 HANDLE hProcess;
 std::thread tAutoloadout;
@@ -16,9 +18,11 @@ bool bActionThread = false;
 bool bKeepActive = false;
 DWORD processID;
 bool bPlrScanThread = false;
-const bool bIntegrityChecks = true;
-const int build_time = __DATE_TIME_UNIX__ + 21600;
+constexpr bool bIntegrityChecks = true;
+constexpr int build_time = __DATE_TIME_UNIX__ + 21600;
+constexpr int expire_build_time = build_time + 60 * 60 * 24 * 14;    //14 days
 wchar_t* dllPath = (wchar_t*)L"C:\\swmodV2.dll";
+constexpr int PS_IDLE_SCANS = 100;
 //wchar_t* dllPath = (wchar_t*)L"C:\\Users\\joe\\source\\repos\\swmodV2\\x64\\Release\\swmodV2.dll";
 
 
@@ -81,7 +85,7 @@ int main()
         else {
             addr.PlrSlotAddr = (char*)addr.PlrObjAddr + 0x240;
         }
-        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBEB992;
+        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBFAD12;
         addr.ConfigLockAddr = (BYTE*)addr.LockSettAddr - 0x28;
         addr.InfElecAddr = (BYTE*)addr.LockSettAddr + 0x1;
         addr.InfFuelAddr = (BYTE*)addr.LockSettAddr + 0x2;
@@ -103,8 +107,8 @@ int main()
         return -1;
     }
     
-    addr.EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45\x0F\x59\xD7", (char*)"xxxxxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
-    addr.PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00\xF3\x44\x0F\x5C\xA7", (char*)"xxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
+    addr.EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xEC\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45", (char*)"xxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
+    addr.PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xEC\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xF0\x06\x00\x00\xF3\x44\x0F", (char*)"xxxxxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
     addr.DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4F\x08\xC7\x85\x28\x03\x00\x00\x33\x33\xB3\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
     addr.DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4F\x08\xC7\x85\x34\x03\x00\x00\x66\x66\xE6\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
     addr.DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xFF\xC8\x41\x89\x46\x08\x8B\x44\x24", (char*)"xxxxxxxxx", (char*)"DecPistolAmmoAddr");
@@ -250,11 +254,13 @@ void ProcessCommand(std::string cmd)
         return;
     }
     
-    //auto loadout
-    if (command[0] == "al")
+    //auto loadout (needs fix)
+    if (command[0] == "al")     
     {
-        std::cout << actionUnavailableStr; //need to fix this
-        return;
+        if (!cal.auto_loadout) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (al.playerobj)
         {
@@ -279,6 +285,10 @@ void ProcessCommand(std::string cmd)
     //god mode
     if (command[0] == "g" || command[0] == "god")
     {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         ml.god = !ml.god;
         if (ml.god) 
         {
@@ -295,7 +305,7 @@ void ProcessCommand(std::string cmd)
         else
         {
             if (al.god) {
-                void* healthDecInstruction = (void*)"\xF3\x0F\x11\x80\xC4\x03\x00\x00";
+                void* healthDecInstruction = (void*)"\xF3\x0F\x11\x80\xEC\x03\x00\x00";
                 PatchEX(hProcess, addr.EnvHealthDecAddr, healthDecInstruction, 8);
                 PatchEX(hProcess, addr.PlrHealthDecAddr, healthDecInstruction, 8);
                 std::cout << disableGodmodeStr;
@@ -309,6 +319,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "heal") {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -325,6 +339,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "die" || command[0] == "kill") {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -341,6 +359,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "ps") { //player scanner
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj) {
             printf("%sStarting player object scanner\n", prefix.c_str());
@@ -372,6 +394,10 @@ void ProcessCommand(std::string cmd)
             //infinite ammo
             if (cmd[i] == 'a')
             {
+                if (!cal.inf_ammo) {
+                    std::cout << actionUnavailableStr;
+                    return;
+                }
                 if (cmd[i + 1] == 'g')
                 {
                     if (!ml.infAmmoG) {
@@ -423,6 +449,10 @@ void ProcessCommand(std::string cmd)
                 //infinite util (depricated)
                 if (cmd[i] == 'u')
                 {
+                    if (!cal.inf_util) {
+                        std::cout << actionUnavailableStr;
+                        return;
+                    }
                     if (al.infUtil)
                     {
                         ml.infUtil = !ml.infUtil;
@@ -512,6 +542,10 @@ void ProcessCommand(std::string cmd)
     //admin menu
     if (command[0] == "am" || command[0] == "cm")
     {
+        if (!cal.custom_menu) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (command[1] == "-bypass" || command[1] == "-b") {
             flags.bypass = true;
         }
@@ -533,6 +567,10 @@ void ProcessCommand(std::string cmd)
     //show map players
     if (command[0] == "sp" || command[0] == "mp")
     {
+        if (!cal.custom_menu) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (!ml.mapPlrs) {
             ml.mapPlrs = true;
             StartActionThread();
@@ -549,6 +587,10 @@ void ProcessCommand(std::string cmd)
     //noclip
     if (command[0] == "nc" || command[0] == "noclip")
     {
+        if (!cal.custom_menu) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (!ml.forceNoClip) {
             ml.forceNoClip = true;
             StartActionThread();
@@ -570,12 +612,20 @@ void ProcessCommand(std::string cmd)
     }
     //workbench
     if (command[0] == "wb") {
+        if (!cal.workbench) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         addr.WorkbenchLockAddr = tryGetWorkbenchLock();
         printf("Workbench lock address: 0x%p\n", addr.WorkbenchLockAddr);
         return;
     }
 
     if (command[0] == "auth") {
+        if (!cal.workbench) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         addr.WorkbenchLockAddr = tryGetWorkbenchLock();
         if (addr.WorkbenchLockAddr != NULL) {
             PatchEX(hProcess, addr.WorkbenchLockAddr, (BYTE*)"\x01", 1);
@@ -587,6 +637,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "deauth") {
+        if (!cal.workbench) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         addr.WorkbenchLockAddr = tryGetWorkbenchLock();
         if (addr.WorkbenchLockAddr != NULL) {
             PatchEX(hProcess, addr.WorkbenchLockAddr, (BYTE*)"\x00", 1);
@@ -599,6 +653,10 @@ void ProcessCommand(std::string cmd)
 
     //give command
     if (command[0] == "give") {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -642,6 +700,10 @@ void ProcessCommand(std::string cmd)
     //gives flashlight
     if (command[0] == "flash" || command[0] == "flashlight")
     {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -672,6 +734,10 @@ void ProcessCommand(std::string cmd)
     //reloads primary
     if (command[0] == "reload" || command[0] == "rl")
     {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -698,6 +764,10 @@ void ProcessCommand(std::string cmd)
     //fixes integers
     if (command[0] == "fix" || command[0] == "fx")
     {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -732,6 +802,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "getslot" || command[0] == "getitem" || command[0] == "qslot") {
+        if (!cal.plrobj_req) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -752,6 +826,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "projid") {
+        if (!cal.plrobj_req || !cal.change_projid) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (!al.playerobj)
         {
             addr.PlrObjAddr = tryGetPlrObj();
@@ -793,6 +871,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "sip" || command[0] == "setinvalidproj") {
+        if (!cal.plrobj_req || !cal.change_projid || !cal.set_invalid_projid) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         ml.projidchanged = true;
         changeProjId(20, addr.RifleProjIDAddr);
         printf("%sInvalid projectile id set.\n", prefix.c_str());
@@ -802,6 +884,10 @@ void ProcessCommand(std::string cmd)
 
 
     if (command[0] == "ns" || command[0] == "nospread") {
+        if (!cal.no_spread) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (!al.noSpread) {
             printf("%s",actionUnavailableStr.c_str());
             return;
@@ -819,6 +905,10 @@ void ProcessCommand(std::string cmd)
     }
 
     if (command[0] == "rf" || command[0] == "rapidfire") {
+        if (!cal.rapid_fire) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         if (!al.rapidFire) {
             printf("%s", actionUnavailableStr.c_str());
             return;
@@ -838,6 +928,10 @@ void ProcessCommand(std::string cmd)
     //rifle
     if (command[0] == "rifle")
     {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
         if (!al.playerobj)
@@ -856,6 +950,10 @@ void ProcessCommand(std::string cmd)
     //torch
     if (command[0] == "torch")
     {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         char* PrimaryItemslotAddr = (char*)addr.PlrObjAddr + 0x268;
         if (!al.playerobj)
@@ -884,6 +982,10 @@ void ProcessCommand(std::string cmd)
     
     if (command[0] == "grenade")
     {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         al.playerobj = verifyPlrObjAddress();
         if (!al.playerobj)
         {
@@ -902,6 +1004,10 @@ void ProcessCommand(std::string cmd)
     //loadout
     if (command[0] == "loa")
     {
+        if (!cal.plrobj_req || !cal.give_item) {
+            std::cout << actionUnavailableStr;
+            return;
+        }
         giveLoadout();
         return;
     }
@@ -1149,8 +1255,7 @@ bool isExpired() {
         printf("local Time: %lld\n", current_time);
     #endif 
 
-    //
-    static const int expire_after = build_time + 60 * 60 * 24 * 7; // 7 days
+    static const int expire_after = expire_build_time; // 7 days
     //static const int expire_after = build_time + 60 * 10;
     return current_time >= expire_after && current_time != NULL;
 }

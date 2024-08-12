@@ -20,7 +20,7 @@
 #include "mods.h"
 #include "antidbg.h"
 #include "ntp.h"
-
+#include "commands.h"
 
 void readyCmdLine();
 
