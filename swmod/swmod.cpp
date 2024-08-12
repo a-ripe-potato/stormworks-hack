@@ -134,7 +134,7 @@ int main()
         std::cout << failedSetCH;
     }
 
-    if (addr.RifleProjIDAddr != (void*)4 ) {
+    if (addr.RifleProjIDAddr != (void*)4 && addr.RifleProjIDAddr != NULL) {
         al.projID = true;
     }
 
