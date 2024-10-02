@@ -4,8 +4,6 @@
 
 
 
-//#define INTEGRITY_CHECK
-//#define EXPIRE
 struct allowList al;
 struct modList ml;
 struct cmd_flags flags;
@@ -85,7 +83,8 @@ int main()
         else {
             addr.PlrSlotAddr = (char*)addr.PlrObjAddr + 0x240;
         }
-        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xBFAD12;
+        addr.WorldSaveMenuAddr = (BYTE*)Module.modBaseAddr + 0x7508AF;
+        addr.LockSettAddr = (BYTE*)Module.modBaseAddr + 0xC8C9A2;
         addr.ConfigLockAddr = (BYTE*)addr.LockSettAddr - 0x28;
         addr.InfElecAddr = (BYTE*)addr.LockSettAddr + 0x1;
         addr.InfFuelAddr = (BYTE*)addr.LockSettAddr + 0x2;
@@ -109,11 +108,11 @@ int main()
     
     addr.EnvHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char *)"\xF3\x0F\x11\x80\xEC\x03\x00\x00\x48\x8B\x87\x58\x02\x00\x00\xF3\x45", (char*)"xxxxxxxxxxxxxxxxx", (char*)"EnvHealthDecAddr");
     addr.PlrHealthDecAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x11\x80\xEC\x03\x00\x00\xF3\x44\x0F\x5C\xA7\xF0\x06\x00\x00\xF3\x44\x0F", (char*)"xxxxxxxxxxxxxxxxxxxx",(char*)"PlrHealthDecAddr");
-    addr.DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4F\x08\xC7\x85\x28\x03\x00\x00\x33\x33\xB3\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
-    addr.DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4F\x08\xC7\x85\x34\x03\x00\x00\x66\x66\xE6\x3E", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
+    addr.DecPrimarySmgAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\xAA\x08\xC7\x85\xAA\x03\x00\x00\x33\x33\xB3\x3E", (char*)"xx?xxx?xxxxxxx", (char*)"DecPrimarySmgAmmoAddr");
+    addr.DecPrimaryRifleAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\xAA\x08\xC7\x85\xAA\x03\x00\x00\x66\x66\xE6\x3E", (char*)"xx?xxx?xxxxxxx", (char*)"DecPrimaryRifleAmmoAddr");
     addr.DecPistolAmmoAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xFF\xC8\x41\x89\x46\x08\x8B\x44\x24", (char*)"xxxxxxxxx", (char*)"DecPistolAmmoAddr");
     addr.DecC4Addr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\xFF\x4E\x08\xE9\xAA\xAA\xFF\xFF\xE8", (char*)"xxxxx??xxx", (char*)"DecC4Addr");
-    addr.DecGrenadeAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x40\xB7\x01\x45\x38\xBD", (char*)"xxxxxxxxxx", (char*)"DecGrenadeAddr");
+    addr.DecGrenadeAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x40\xAA\x01\x45\x38\xBD", (char*)"xxxxx?xxxx", (char*)"DecGrenadeAddr");
     //DecPrimaryWeldingTorchAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x44\x0F\x5C\xC7\x41\x0F\x28\xFA\xF3\x41\x0F\x5F\xF8", (char*)"xxxxxxxxxxxxxx", (char*)"DecPrimaryWeldingTorchAddr");
     //DecFlaregunAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xFF\xC8\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xC8", (char*)"xxxxxxxxxxxxxxxx", (char*)"DecFlaregunAddr");
     //DecFlareAddr = PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x41\x89\x46\x08\x45\x38\xBD\x08\x24\x00\x00\x0F\x84\xFB\xFC\xFF\xFF", (char*)"xxxxxxxxxxxxxxxxx", (char*)"DecFlareAddr");
@@ -122,11 +121,11 @@ int main()
     //RifleNoSpreadAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xF3\x0F\x59\x15\xBE\x51\x41", (char*)"xxxxxxx", (char*)"RifleNoSpreadIDPatternAddr") + 0xD;
     addr.RifleProjIDAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\xC7\x44\x24\x38\x05\x00\x00\x00\xF3\x0F", (char*)"xxxxxxxxxx", (char*)"RifleProjIDAddr") + 4;
     //RifleNoSpreadAddr = Module.modBaseAddr + 0x688F8B; you also got to add the offset to .text to use this
-    addr.DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\xC4\xF5\xFF\xFF\xF3\x41\x0F\x10\x47\x04", (char*)"xx??xxxxxxxx", (char*)"FlashlightIDPatternAddr") + 0xC;
+    //addr.DecFlashlightAddr = (char*)PatternScanExModule(hProcess, (wchar_t*)L"stormworks64.exe", (wchar_t*)L"stormworks64.exe", (char*)"\x0F\x84\xC4\xF5\xFF\xFF\xF3\x41\x0F\x10\x47\x04", (char*)"xx??xxxxxxxx", (char*)"FlashlightIDPatternAddr") + 0xC;
     addr.RifleRapidFireAddr = (char*)addr.DecPrimaryRifleAmmoAddr - 4;
     printf("%sRifleProjIDAddr = 0x%p\n", prefix.c_str(), addr.RifleProjIDAddr);
-    printf("%sRifleNoSpreadAddr = 0x%p\n", prefix.c_str(), addr.RifleNoSpreadAddr);
-    printf("%sDecFlashlightAddr = 0x%p\n", prefix.c_str(), addr.DecFlashlightAddr);
+    //printf("%sRifleNoSpreadAddr = 0x%p\n", prefix.c_str(), addr.RifleNoSpreadAddr);
+    //printf("%sDecFlashlightAddr = 0x%p\n", prefix.c_str(), addr.DecFlashlightAddr);
     //printf("%sDecFireExtAddr = 0x%p\n", prefix.c_str(), DecPrimaryFireExtAddr);
     
     if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE))
@@ -447,6 +446,10 @@ void ProcessCommand(std::string cmd)
                 }
             }
                 //infinite util (depricated)
+                if (cmd[i] == 'u') {
+                    std::cout << actionUnavailableStr;
+                    return;
+                }
                 if (cmd[i] == 'u')
                 {
                     if (!cal.inf_util) {
@@ -979,6 +982,23 @@ void ProcessCommand(std::string cmd)
         }
         return;
     }
+
+    //world save menu
+    if (command[0] == "savemenu" || command[0] == "wsm")
+    {
+        if (!ml.worldSaveMenu) {
+            ml.worldSaveMenu = true;
+            //StartActionThread();
+            PatchEX(hProcess, addr.WorldSaveMenuAddr, (BYTE*)"\x01", 1);
+            std::cout << enableSaveMenuStr;
+        }
+        else {
+            PatchEX(hProcess, addr.WorldSaveMenuAddr, (BYTE*)"\x80", 1);
+            ml.worldSaveMenu = false;
+            std::cout << disableSaveMenuStr;
+        }
+        return;
+    }
     
     if (command[0] == "grenade")
     {
@@ -1135,10 +1155,13 @@ void ActionThread()
             //    giveLoadout();
             //}
         }
+        //world save menu
+        //if (ml.worldSaveMenu) {
+        //    PatchEX(hProcess, addr.WorldSaveMenuAddr, (BYTE*)"\x01", 1);
+        //}
         //inf ammo
         if (ml.infAmmoG) {
             PatchEX(hProcess, addr.InfAmmoAddr, (BYTE*)"\x01", 1);
-
         }
         if (ml.infAmmo && flags.method == "lazy") {
             setAmmo(0, 100);

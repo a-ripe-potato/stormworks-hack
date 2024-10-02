@@ -42,6 +42,7 @@ struct addresses {
 	BYTE* DisableWeaponsAddr;
 	BYTE* InfAmmoAddr;
 	BYTE* WorkbenchLockAddr;
+	BYTE* WorldSaveMenuAddr;
 	void* EnvHealthDecAddr;
 	void* PlrHealthDecAddr;
 	void* DecPrimarySmgAmmoAddr;
@@ -90,6 +91,7 @@ struct modList {
 	bool rapidFire = false;
 	bool projidchanged = false;
 	bool forceworkbench = false;
+	bool worldSaveMenu = false;
 };
 
 struct cmd_flags {

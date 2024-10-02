@@ -54,6 +54,9 @@ const static std::string deauthWorkbenchStr = prefix + "Deauthed!\n";
 const static std::string updateRifleProjidStr = prefix + "Updated rifle projectile id.\n";
 const static std::string enableVehSpawningStr = prefix + "Vehicle spawning enabled.\n";
 const static std::string disableVehSpawningStr = prefix + "Vehicle spawning disabled.\n";
+const static std::string enableSaveMenuStr = prefix + "World save menu shown.\n";
+const static std::string disableSaveMenuStr = prefix + "World save menu hidden.\n";
+
 
 
 void printHelpMessage();
